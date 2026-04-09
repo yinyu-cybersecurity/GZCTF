@@ -45,6 +45,12 @@
           "batch_add": "Batch Add"
         }
       },
+      "screen": {
+        "back": "Back to Admin",
+        "copy_link": "Copy Screen Link",
+        "exit_fullscreen": "Exit Fullscreen",
+        "fullscreen": "Fullscreen"
+      },
       "copy_public_key": "Copy Public Key",
       "delete": "Delete",
       "export": "Export Game",
@@ -423,6 +429,65 @@
         "title": "Platform Settings"
       }
     },
+    "screen": {
+      "title": "Attack-Defense Command Screen",
+      "subtitle": "A real-time command dashboard for CTF attack-defense operations.",
+      "metrics": {
+        "teams": "Active Teams",
+        "players": "Players",
+        "challenges": "Challenges",
+        "solves": "Total Solves"
+      },
+      "sections": {
+        "rankings": "Live Rankings",
+        "feed": "Live Feed",
+        "divisions": "Division Spread",
+        "hot": "Hot Challenges",
+        "active": "Active Teams",
+        "categories": "Category Heat"
+      },
+      "labels": {
+        "updated": "Updated",
+        "start": "Start",
+        "end": "End",
+        "score": "Score",
+        "solves": "Solves",
+        "last_attack": "Last Attack",
+        "attempts": "Recent Attempts",
+        "first_blood": "First Blood",
+        "ticker": "Signal Feed",
+        "teams": "Teams",
+        "undivided": "No Division"
+      },
+      "state": {
+        "coming": "Standby",
+        "ongoing": "Live",
+        "ended": "Finished",
+        "no_rank": "Scoreboard will light up after the match starts.",
+        "no_feed": "No live events yet.",
+        "no_hot": "Challenge hotspots will appear after the first breakthroughs.",
+        "no_active": "Team activity will appear after the first submissions.",
+        "no_teams": "No accepted teams yet.",
+        "no_blood": "No first blood yet."
+      },
+      "tags": {
+        "accepted": "BREACH",
+        "alert": "ALERT",
+        "submit": "PULSE",
+        "live": "LIVE"
+      },
+      "defaults": {
+        "challenge": "Challenge",
+        "team": "Team",
+        "system": "GZCTF"
+      },
+      "messages": {
+        "accepted": "{{team}} broke through, result: {{result}}",
+        "suspicious": "{{team}} triggered an alert, source: {{source}}",
+        "submitted": "{{team}} submitted, result: {{result}}",
+        "live": "{{actor}} pushed a live event"
+      }
+    },
     "show_all": "Show All",
     "teams": {
       "delete": "Are you sure you want to delete team {{name}} ?",
@@ -526,6 +591,9 @@
       },
       "participation": {
         "updated": "Team status has been updated"
+      },
+      "screen": {
+        "link_copied": "Screen link copied to clipboard"
       }
     },
     "instances": {
@@ -601,6 +669,7 @@
       "info": "Information",
       "notices": "Notices",
       "review": "Teams",
+      "screen": "Screen",
       "writeups": "Writeups"
     },
     "instances": "Instances",

@@ -45,6 +45,12 @@
           "batch_add": "批量添加"
         }
       },
+      "screen": {
+        "back": "返回管理页",
+        "copy_link": "复制大屏链接",
+        "exit_fullscreen": "退出全屏",
+        "fullscreen": "全屏展示"
+      },
       "copy_public_key": "复制公钥",
       "delete": "删除比赛",
       "export": "导出比赛",
@@ -423,6 +429,65 @@
         "title": "平台设置"
       }
     },
+    "screen": {
+      "title": "攻防实时指挥大屏",
+      "subtitle": "面向攻防演练场景的实时态势总览与播报中枢。",
+      "metrics": {
+        "teams": "活跃战队",
+        "players": "参赛选手",
+        "challenges": "题目总数",
+        "solves": "累计解题"
+      },
+      "sections": {
+        "rankings": "实时排名",
+        "feed": "实时提交流",
+        "divisions": "分组分布",
+        "hot": "热点题目",
+        "active": "活跃战队",
+        "categories": "分类热度"
+      },
+      "labels": {
+        "updated": "更新时间",
+        "start": "开始时间",
+        "end": "结束时间",
+        "score": "积分",
+        "solves": "解题",
+        "last_attack": "最近提交",
+        "attempts": "近期尝试",
+        "first_blood": "一血",
+        "ticker": "实时播报",
+        "teams": "战队数",
+        "undivided": "未分组"
+      },
+      "state": {
+        "coming": "准备中",
+        "ongoing": "进行中",
+        "ended": "已结束",
+        "no_rank": "比赛开始后将显示实时排名。",
+        "no_feed": "当前暂无实时事件。",
+        "no_hot": "首批解题出现后将显示热点题目。",
+        "no_active": "出现提交后将展示活跃战队。",
+        "no_teams": "当前暂无已通过审核的战队。",
+        "no_blood": "当前暂无一血记录。"
+      },
+      "tags": {
+        "accepted": "攻破",
+        "alert": "告警",
+        "submit": "提交",
+        "live": "动态"
+      },
+      "defaults": {
+        "challenge": "未知题目",
+        "team": "未知战队",
+        "system": "GZCTF"
+      },
+      "messages": {
+        "accepted": "{{team}} 已完成突破，判定：{{result}}",
+        "suspicious": "{{team}} 触发疑似违规告警，来源：{{source}}",
+        "submitted": "{{team}} 发起提交，结果：{{result}}",
+        "live": "{{actor}} 推送了一条实时动态"
+      }
+    },
     "show_all": "显示全部",
     "teams": {
       "delete": "你确定要删除队伍 {{name}} 吗？",
@@ -526,6 +591,9 @@
       },
       "participation": {
         "updated": "队伍审核状态已更新"
+      },
+      "screen": {
+        "link_copied": "大屏链接已复制到剪贴板"
       }
     },
     "instances": {
@@ -601,6 +669,7 @@
       "info": "信息编辑",
       "notices": "比赛公告",
       "review": "队伍审核",
+      "screen": "大屏展示",
       "writeups": "Writeups"
     },
     "instances": "实例管理",
