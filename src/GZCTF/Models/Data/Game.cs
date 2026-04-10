@@ -49,6 +49,11 @@ public partial class Game
     public bool PracticeMode { get; set; } = true;
 
     /// <summary>
+    /// Whether the game is for internal demo/testing usage
+    /// </summary>
+    public bool IsTest { get; set; }
+
+    /// <summary>
     /// Poster hash
     /// </summary>
     [MaxLength(Limits.FileHashLength)]
@@ -191,6 +196,7 @@ public partial class Game
         Summary = model.Summary;
         Hidden = model.Hidden;
         PracticeMode = model.PracticeMode;
+        IsTest = model.IsTest;
         AcceptWithoutReview = model.AcceptWithoutReview;
         InviteCode = model.InviteCode;
         EndTimeUtc = model.EndTimeUtc;

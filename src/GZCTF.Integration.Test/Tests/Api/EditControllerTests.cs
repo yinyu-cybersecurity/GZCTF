@@ -211,6 +211,83 @@ public class EditControllerTests(GZCTFApplicationFactory factory, ITestOutputHel
         Assert.Equal(0, detail.AcceptedCount);
     }
 
+    [Fact]
+    public async Task AddGame_ShouldPersistIsTestFlag()
+    {
+        var adminPassword = "Admin@Pass123";
+        var adminUser = await TestDataSeeder.CreateUserAsync(factory.Services,
+            TestDataSeeder.RandomName(), adminPassword, role: Role.Admin);
+
+        using var adminClient = factory.CreateClient();
+
+        var loginResponse = await adminClient.PostAsJsonAsync("/api/Account/LogIn",
+            new LoginModel { UserName = adminUser.UserName, Password = adminPassword });
+        loginResponse.EnsureSuccessStatusCode();
+
+        var model = new GameInfoModel
+        {
+            Title = "Demo Screen Test Game",
+            Summary = "summary",
+            Content = "content",
+            IsTest = true,
+            StartTimeUtc = DateTimeOffset.UtcNow.AddHours(-1),
+            EndTimeUtc = DateTimeOffset.UtcNow.AddHours(1),
+            WriteupDeadline = DateTimeOffset.UtcNow.AddHours(1)
+        };
+
+        var createResponse = await adminClient.PostAsJsonAsync("/api/Edit/Games", model);
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<GameInfoModel>();
+        Assert.NotNull(created);
+        Assert.True(created.IsTest);
+
+        using var scope = factory.Services.CreateScope();
+        var gameRepository = scope.ServiceProvider.GetRequiredService<IGameRepository>();
+        var game = await gameRepository.GetGameById(created.Id, CancellationToken.None);
+
+        Assert.NotNull(game);
+        Assert.True(game.IsTest);
+    }
+
+    [Fact]
+    public async Task UpdateGame_ShouldUpdateIsTestFlag()
+    {
+        var adminPassword = "Admin@Pass123";
+        var adminUser = await TestDataSeeder.CreateUserAsync(factory.Services,
+            TestDataSeeder.RandomName(), adminPassword, role: Role.Admin);
+        var seededGame = await TestDataSeeder.CreateGameAsync(factory.Services, "Editable Test Flag Game");
+
+        using var adminClient = factory.CreateClient();
+
+        var loginResponse = await adminClient.PostAsJsonAsync("/api/Account/LogIn",
+            new LoginModel { UserName = adminUser.UserName, Password = adminPassword });
+        loginResponse.EnsureSuccessStatusCode();
+
+        var gameResponse = await adminClient.GetAsync($"/api/Edit/Games/{seededGame.Id}");
+        gameResponse.EnsureSuccessStatusCode();
+        var gameInfo = await gameResponse.Content.ReadFromJsonAsync<GameInfoModel>();
+
+        Assert.NotNull(gameInfo);
+        Assert.False(gameInfo.IsTest);
+
+        gameInfo.IsTest = true;
+
+        var updateResponse = await adminClient.PutAsJsonAsync($"/api/Edit/Games/{seededGame.Id}", gameInfo);
+        updateResponse.EnsureSuccessStatusCode();
+
+        var updated = await updateResponse.Content.ReadFromJsonAsync<GameInfoModel>();
+        Assert.NotNull(updated);
+        Assert.True(updated.IsTest);
+
+        using var scope = factory.Services.CreateScope();
+        var gameRepository = scope.ServiceProvider.GetRequiredService<IGameRepository>();
+        var game = await gameRepository.GetGameById(seededGame.Id, CancellationToken.None);
+
+        Assert.NotNull(game);
+        Assert.True(game.IsTest);
+    }
+
     /// <summary>
     /// Test DeleteDivision works correctly
     /// </summary>

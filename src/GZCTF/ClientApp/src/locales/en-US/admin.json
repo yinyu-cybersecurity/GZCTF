@@ -282,6 +282,10 @@
           "label": "Invitation Code",
           "placeholder": "Leave empty to disable"
         },
+        "is_test": {
+          "description": "Only affects the admin screen page. When enabled, the screen shows demo data instead of live match data.",
+          "label": "Test Game"
+        },
         "member_limit": {
           "description": "0 means unlimited members of team",
           "label": "Maximum Team Member"

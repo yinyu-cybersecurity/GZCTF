@@ -282,6 +282,10 @@
           "label": "邀请码",
           "placeholder": "留空以禁用"
         },
+        "is_test": {
+          "description": "仅影响管理端大屏，启用后大屏自动展示演示数据而非真实比赛数据",
+          "label": "测试比赛"
+        },
         "member_limit": {
           "description": "0 表示不限制队伍人数",
           "label": "队伍人数限制"

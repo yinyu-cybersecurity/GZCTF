@@ -324,6 +324,16 @@ const GameInfoEdit: FC = () => {
           )}
           onChange={(e) => game && setGame({ ...game, practiceMode: e.target.checked })}
         />
+        <Switch
+          disabled={disabled}
+          checked={game?.isTest ?? false}
+          classNames={{ root: misc.switchVerticalMiddle }}
+          label={SwitchLabel(
+            t('admin.content.games.info.is_test.label'),
+            t('admin.content.games.info.is_test.description')
+          )}
+          onChange={(e) => game && setGame({ ...game, isTest: e.target.checked })}
+        />
       </SimpleGrid>
       <Group grow justify="space-between">
         <Textarea

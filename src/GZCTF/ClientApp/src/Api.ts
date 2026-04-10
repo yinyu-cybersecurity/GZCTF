@@ -961,6 +961,8 @@ export interface GameInfoModel {
   publicKey?: string;
   /** Is the game in practice mode (accessible even after the game ends) */
   practiceMode?: boolean;
+  /** Is the game for internal demo/testing usage */
+  isTest?: boolean;
   /**
    * Start time
    * @format uint64

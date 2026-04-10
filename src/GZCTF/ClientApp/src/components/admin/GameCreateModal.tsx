@@ -1,4 +1,4 @@
-import { Button, Group, Modal, ModalProps, Stack, TextInput } from '@mantine/core'
+import { Button, Group, Modal, ModalProps, Stack, Switch, TextInput } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useInputState } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
@@ -8,8 +8,10 @@ import dayjs from 'dayjs'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
+import { SwitchLabel } from '@Components/admin/SwitchLabel'
 import { showErrorMsg } from '@Utils/Shared'
 import api, { GameInfoModel } from '@Api'
+import misc from '@Styles/Misc.module.css'
 
 interface GameCreateModalProps extends ModalProps {
   onAddGame: (game: GameInfoModel) => void
@@ -22,6 +24,7 @@ export const GameCreateModal: FC<GameCreateModalProps> = (props) => {
   const [title, setTitle] = useInputState('')
   const [start, setStart] = useInputState(dayjs())
   const [end, setEnd] = useInputState(dayjs().add(2, 'h'))
+  const [isTest, setIsTest] = useState(false)
 
   const { t } = useTranslation()
 
@@ -41,6 +44,7 @@ export const GameCreateModal: FC<GameCreateModalProps> = (props) => {
     try {
       const res = await api.edit.editAddGame({
         title,
+        isTest,
         start: start.valueOf(),
         end: end.valueOf(),
       })
@@ -95,6 +99,15 @@ export const GameCreateModal: FC<GameCreateModalProps> = (props) => {
           }}
           error={end < start}
           required
+        />
+        <Switch
+          checked={isTest}
+          classNames={{ root: misc.switchVerticalMiddle }}
+          label={SwitchLabel(
+            t('admin.content.games.info.is_test.label'),
+            t('admin.content.games.info.is_test.description')
+          )}
+          onChange={(event) => setIsTest(event.currentTarget.checked)}
         />
         <Group grow m="auto" w="100%">
           <Button fullWidth disabled={disabled} onClick={onCreate}>

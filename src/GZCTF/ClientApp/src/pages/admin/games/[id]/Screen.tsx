@@ -21,8 +21,9 @@ import { GameStatus } from '@Components/GameCard'
 import { WithRole } from '@Components/WithRole'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
 import { useChallengeCategoryLabelMap } from '@Utils/Shared'
+import { useDemoScreenData } from '@Utils/screenDemoData'
 import { OnceSWRConfig } from '@Hooks/useConfig'
-import { getGameStatus } from '@Hooks/useGame'
+import { getGameStatus, useAdminGame } from '@Hooks/useGame'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import api, { AnswerResult, EventType, GameEvent, ParticipationStatus, Role, ScoreboardItem, Submission } from '@Api'
 import classes from '@Styles/AdminGameScreen.module.css'
@@ -150,12 +151,24 @@ const Screen: FC = () => {
   const scoreboardSnapshotRef = useRef(new Map<number, { rank: number; score: number }>())
   const scoreboardRefreshRef = useRef(0)
 
-  const { data: game } = api.game.useGameGame(numId, OnceSWRConfig, numId > 0)
+  const { game } = useAdminGame(numId)
+  const isTestMode = game?.isTest ?? false
   const statusInfo = getGameStatus(game)
-  const canLoadScoreboard = numId > 0 && statusInfo.status !== GameStatus.Coming
-  const canLoadMonitor = numId > 0 && statusInfo.status !== GameStatus.Coming
+  const canLoadScoreboard = numId > 0 && !!game && !isTestMode && statusInfo.status !== GameStatus.Coming
+  const canLoadMonitor = numId > 0 && !!game && !isTestMode && statusInfo.status !== GameStatus.Coming
+  const canLoadParticipations = numId > 0 && !!game && !isTestMode
 
-  const { data: scoreboard, mutate: mutateScoreboard } = api.game.useGameScoreboard(
+  const demoData = useDemoScreenData(
+    game?.id && game?.title
+      ? {
+          id: game.id,
+          title: game.title,
+        }
+      : undefined,
+    now
+  )
+
+  const { data: liveScoreboard, mutate: mutateScoreboard } = api.game.useGameScoreboard(
     numId,
     {
       ...OnceSWRConfig,
@@ -163,7 +176,7 @@ const Screen: FC = () => {
     },
     canLoadScoreboard
   )
-  const { data: participations } = api.game.useGameParticipations(numId, OnceSWRConfig, numId > 0)
+  const { data: liveParticipations } = api.game.useGameParticipations(numId, OnceSWRConfig, canLoadParticipations)
   const { data: initialEvents } = api.game.useGameEvents(
     numId,
     { hideContainer: true, count: MAX_EVENTS },
@@ -176,6 +189,11 @@ const Screen: FC = () => {
     OnceSWRConfig,
     canLoadMonitor
   )
+
+  const scoreboard = isTestMode ? demoData?.scoreboard : liveScoreboard
+  const participations = isTestMode ? demoData?.participations : liveParticipations
+  const eventFeed = isTestMode ? demoData?.events ?? [] : liveEvents
+  const submissionFeed = isTestMode ? demoData?.submissions ?? [] : liveSubmissions
 
   usePageTitle(game?.title ? `${game.title} - 攻防实时指挥大屏` : '攻防实时指挥大屏')
 
@@ -191,12 +209,20 @@ const Screen: FC = () => {
   }, [])
 
   useEffect(() => {
-    if (initialEvents) setLiveEvents(trimList(initialEvents, MAX_EVENTS))
-  }, [initialEvents])
+    scoreboardSnapshotRef.current = new Map()
+    setRankDeltaMap(new Map())
+    setScoreDeltaMap(new Map())
+  }, [isTestMode, numId])
 
   useEffect(() => {
+    if (isTestMode) return
+    if (initialEvents) setLiveEvents(trimList(initialEvents, MAX_EVENTS))
+  }, [initialEvents, isTestMode])
+
+  useEffect(() => {
+    if (isTestMode) return
     if (initialSubmissions) setLiveSubmissions(trimList(initialSubmissions, MAX_SUBMISSIONS))
-  }, [initialSubmissions])
+  }, [initialSubmissions, isTestMode])
 
   useEffect(() => {
     if (!scoreboard?.items) return
@@ -218,7 +244,7 @@ const Screen: FC = () => {
   }, [scoreboard?.items, scoreboard?.updateTimeUtc])
 
   useEffect(() => {
-    if (statusInfo.status !== GameStatus.OnGoing || numId <= 0) return
+    if (isTestMode || statusInfo.status !== GameStatus.OnGoing || numId <= 0) return
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(`/hub/monitor?game=${numId}`)
@@ -250,7 +276,7 @@ const Screen: FC = () => {
     return () => {
       void connection.stop()
     }
-  }, [mutateScoreboard, numId, statusInfo.status])
+  }, [isTestMode, mutateScoreboard, numId, statusInfo.status])
 
   const acceptedParticipations = useMemo(
     () => (participations ?? []).filter((item) => item.status === ParticipationStatus.Accepted),
@@ -292,16 +318,16 @@ const Screen: FC = () => {
   }, [challengeCategoryLabelMap, challengeList])
   const moments = useMemo(
     () =>
-      liveEvents
+      eventFeed
         .map((event) => toMoment(event))
         .filter((item): item is ScreenMoment => !!item)
         .sort((left, right) => right.time - left.time)
         .slice(0, 12),
-    [liveEvents]
+    [eventFeed]
   )
   const submissionSummary = useMemo(() => {
-    const total = liveSubmissions.length
-    const accepted = liveSubmissions.filter((item) => item.status === AnswerResult.Accepted).length
+    const total = submissionFeed.length
+    const accepted = submissionFeed.filter((item) => item.status === AnswerResult.Accepted).length
     const solveRate = total > 0 ? (accepted / total) * 100 : 0
     const coverage =
       activeTeamCount > 0 && (scoreboard?.challengeCount ?? 0) > 0
@@ -314,7 +340,7 @@ const Screen: FC = () => {
       solveRate: clampPercent(Math.round(solveRate)),
       coverage: clampPercent(Math.round(coverage)),
     }
-  }, [activeTeamCount, liveSubmissions, scoreboard?.challengeCount, totalSolveCount])
+  }, [activeTeamCount, scoreboard?.challengeCount, submissionFeed, totalSolveCount])
   const categoryProgress = useMemo(() => {
     const map = new Map<string, CategoryProgress>()
 
@@ -332,7 +358,7 @@ const Screen: FC = () => {
       map.set(challenge.category, current)
     }
 
-    for (const submission of liveSubmissions.slice(0, 40)) {
+    for (const submission of submissionFeed.slice(0, 40)) {
       const meta = submission.challenge ? challengeMetaMap.get(submission.challenge) : undefined
       if (!meta) continue
       const current = map.get(meta.category)
@@ -343,7 +369,7 @@ const Screen: FC = () => {
       .map((item) => ({ ...item, percent: clampPercent(Math.round((item.cracked / Math.max(item.total, 1)) * 100)) }))
       .sort((left, right) => right.percent - left.percent || right.attempts - left.attempts)
       .slice(0, 6)
-  }, [challengeCategoryLabelMap, challengeList, challengeMetaMap, liveSubmissions])
+  }, [challengeCategoryLabelMap, challengeList, challengeMetaMap, submissionFeed])
   const timelineTeams = useMemo(() => {
     const overall = scoreboard?.timelines?.find((item) => item.divisionId === undefined || item.divisionId === 0)?.teams
     return (overall ?? scoreboard?.timelines?.[0]?.teams ?? []).slice(0, 5)
@@ -367,7 +393,7 @@ const Screen: FC = () => {
   const announcementMoments = moments.slice(0, 4)
   const liveDynamics = useMemo(
     () =>
-      liveSubmissions.slice(0, 7).map((submission, index) => ({
+      submissionFeed.slice(0, 7).map((submission, index) => ({
         id: `${submission.time}-${submission.team ?? submission.user ?? index}-${submission.challenge ?? index}`,
         time: submission.time,
         team: submission.team ?? submission.user ?? '未知战队',
@@ -375,7 +401,7 @@ const Screen: FC = () => {
         status: formatAnswer(submission.status),
         tone: toneFromResult(submission.status),
       })),
-    [liveSubmissions]
+    [submissionFeed]
   )
   const roundInfo = useMemo(() => {
     const total = 8
@@ -492,7 +518,7 @@ const Screen: FC = () => {
         type: 'category',
         axisLabel: { color: '#7fa9d5' },
         axisLine: { lineStyle: { color: 'rgba(92, 131, 190, 0.24)' } },
-        data: liveSubmissions
+        data: submissionFeed
           .slice(0, 8)
           .reverse()
           .map((item) => dayjs(item.time).format('HH:mm')),
@@ -507,7 +533,7 @@ const Screen: FC = () => {
           type: 'line',
           smooth: true,
           symbolSize: 8,
-          data: liveSubmissions
+          data: submissionFeed
             .slice(0, 8)
             .reverse()
             .map((item) => (item.status === AnswerResult.Accepted ? 1 : 0)),
@@ -517,7 +543,7 @@ const Screen: FC = () => {
         },
       ],
     }
-  }, [liveSubmissions, timelineTeams])
+  }, [submissionFeed, timelineTeams])
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -580,6 +606,16 @@ const Screen: FC = () => {
                 <Title order={1} className={classes.headerTitle}>
                   {game?.title ?? '攻防实时指挥大屏'}
                 </Title>
+                {isTestMode && (
+                  <Group gap="xs" justify="center">
+                    <Badge color="orange" variant="filled">
+                      演示模式
+                    </Badge>
+                    <Text c="dimmed" size="sm">
+                      当前展示的是测试数据
+                    </Text>
+                  </Group>
+                )}
                 <div className={classes.headerAccent} />
               </div>
               <div className={`${classes.headerWing} ${classes.headerWingRight}`} />

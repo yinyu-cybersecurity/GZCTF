@@ -79,6 +79,11 @@ public class GameInfoModel
     public bool PracticeMode { get; set; } = true;
 
     /// <summary>
+    /// Is the game for internal demo/testing usage
+    /// </summary>
+    public bool IsTest { get; set; }
+
+    /// <summary>
     /// Start time
     /// </summary>
     [Required]
@@ -121,6 +126,7 @@ public class GameInfoModel
             InviteCode = game.InviteCode,
             PublicKey = game.PublicKey,
             AcceptWithoutReview = game.AcceptWithoutReview,
+            IsTest = game.IsTest,
             TeamMemberCountLimit = game.TeamMemberCountLimit,
             ContainerCountLimit = game.ContainerCountLimit,
             StartTimeUtc = game.StartTimeUtc,
