@@ -6,7 +6,7 @@ import type { EChartsOption } from 'echarts'
 import { FC, useEffect, useRef, useState } from 'react'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
 import type { ScoreboardItem } from '@Api'
-import classes from '@Styles/components/ChartsView.module.css'
+import classes from '@Styles/ChartsView.module.css'
 
 const RANK_ENTRY_HEIGHT = 72
 const PROGRESS_ENTRY_HEIGHT = 68

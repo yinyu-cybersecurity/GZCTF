@@ -9,7 +9,7 @@ import { WithGameEditTab } from '@Components/admin/WithGameEditTab'
 import { getScreenDisplayPath, SCREEN_MODE_META } from '@Components/screen/useScreenData'
 import { useAdminGame } from '@Hooks/useGame'
 import { usePageTitle } from '@Hooks/usePageTitle'
-import classes from '@Styles/pages/AdminGameScreen.module.css'
+import classes from '@Styles/AdminGameScreen.module.css'
 
 const ScreenControl: FC = () => {
   const { id } = useParams()

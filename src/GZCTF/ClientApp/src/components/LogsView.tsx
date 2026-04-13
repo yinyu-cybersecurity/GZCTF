@@ -4,7 +4,7 @@ import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import { FC, useEffect, useRef, useState } from 'react'
 import type { Submission } from '@Api'
-import classes from '@Styles/components/LogsView.module.css'
+import classes from '@Styles/LogsView.module.css'
 
 interface LogEntry {
   id: string

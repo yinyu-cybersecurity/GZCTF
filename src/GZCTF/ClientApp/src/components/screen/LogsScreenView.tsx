@@ -2,7 +2,7 @@ import { Badge, Text } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import dayjs from 'dayjs'
 import { FC } from 'react'
-import classes from '@Styles/components/ScreenDisplay.module.css'
+import classes from '@Styles/ScreenDisplay.module.css'
 import ScreenDisplayShell from './ScreenDisplayShell'
 import { useGameScreenData, useRotatingWindow, useVisibleCount } from './useScreenData'
 

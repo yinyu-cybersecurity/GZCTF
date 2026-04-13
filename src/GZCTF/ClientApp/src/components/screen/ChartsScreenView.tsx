@@ -2,7 +2,7 @@ import { Stack, Text } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import { FC } from 'react'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
-import classes from '@Styles/components/ScreenDisplay.module.css'
+import classes from '@Styles/ScreenDisplay.module.css'
 import ScreenDisplayShell from './ScreenDisplayShell'
 import { useGameScreenData, useVisibleCount } from './useScreenData'
 

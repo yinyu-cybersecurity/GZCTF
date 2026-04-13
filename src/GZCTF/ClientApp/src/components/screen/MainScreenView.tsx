@@ -5,7 +5,7 @@ import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import { FC } from 'react'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
-import classes from '@Styles/components/ScreenDisplay.module.css'
+import classes from '@Styles/ScreenDisplay.module.css'
 import ScreenDisplayShell from './ScreenDisplayShell'
 import {
   ScreenDynamicEntry,

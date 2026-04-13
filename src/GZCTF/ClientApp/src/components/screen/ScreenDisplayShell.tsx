@@ -3,7 +3,7 @@ import { mdiClockOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import { FC, ReactNode } from 'react'
-import classes from '@Styles/components/ScreenDisplay.module.css'
+import classes from '@Styles/ScreenDisplay.module.css'
 
 interface ScreenDisplayShellProps {
   title?: string
