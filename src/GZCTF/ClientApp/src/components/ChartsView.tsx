@@ -3,10 +3,14 @@ import { mdiClockOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import dayjs from 'dayjs'
 import type { EChartsOption } from 'echarts'
-import { FC } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
 import type { ScoreboardItem } from '@Api'
 import classes from '@Styles/components/ChartsView.module.css'
+
+const RANK_ENTRY_HEIGHT = 72
+const PROGRESS_ENTRY_HEIGHT = 68
+const MIN_VISIBLE = 3
 
 interface CategoryProgress {
   key: string
@@ -15,9 +19,6 @@ interface CategoryProgress {
   cracked: number
   percent: number
 }
-
-const MAX_RANK_ITEMS = 10
-const MAX_PROGRESS_ITEMS = 8
 
 interface ChartsViewProps {
   game?: { title?: string }
@@ -48,9 +49,40 @@ const ChartsView: FC<ChartsViewProps> = (props) => {
     trendOption,
   } = props
 
-  const rankItems = rankedTeams.slice(0, MAX_RANK_ITEMS)
+  const rankPanelRef = useRef<HTMLDivElement>(null)
+  const progressPanelRef = useRef<HTMLDivElement>(null)
+  const [rankPanelHeight, setRankPanelHeight] = useState(0)
+  const [progressPanelHeight, setProgressPanelHeight] = useState(0)
+
+  useEffect(() => {
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === rankPanelRef.current) {
+          setRankPanelHeight(entry.contentRect.height)
+        } else if (entry.target === progressPanelRef.current) {
+          setProgressPanelHeight(entry.contentRect.height)
+        }
+      }
+    })
+    const rankEl = rankPanelRef.current
+    const progressEl = progressPanelRef.current
+    if (rankEl) ro.observe(rankEl)
+    if (progressEl) ro.observe(progressEl)
+    return () => {
+      if (rankEl) ro.unobserve(rankEl)
+      if (progressEl) ro.unobserve(progressEl)
+    }
+  }, [])
+
+  const PANEL_HEAD_HEIGHT = 32
+  const rankAvailable = Math.max(0, rankPanelHeight - PANEL_HEAD_HEIGHT)
+  const progressAvailable = Math.max(0, progressPanelHeight - PANEL_HEAD_HEIGHT)
+  const maxRankItems = Math.max(MIN_VISIBLE, Math.floor(rankAvailable / RANK_ENTRY_HEIGHT))
+  const maxProgressItems = Math.max(MIN_VISIBLE, Math.floor(progressAvailable / PROGRESS_ENTRY_HEIGHT))
+
+  const rankItems = rankedTeams.slice(0, maxRankItems)
   const rankMaxScore = Math.max(1, ...rankItems.map((item) => item.score), 1)
-  const progressItems = categoryProgress.slice(0, MAX_PROGRESS_ITEMS)
+  const progressItems = categoryProgress.slice(0, maxProgressItems)
 
   return (
     <div className={classes.root}>
@@ -97,7 +129,7 @@ const ChartsView: FC<ChartsViewProps> = (props) => {
           <EchartsContainer option={trendOption} className={classes.trendChart} />
         </section>
 
-        <section className={`${classes.panel} ${classes.rankPanel}`}>
+        <section className={`${classes.panel} ${classes.rankPanel}`} ref={rankPanelRef}>
           <div className={classes.panelHead}>
             <Text className={classes.panelTitle}>排行榜</Text>
             <Text className={classes.panelHint}>TOP {rankItems.length}</Text>
@@ -138,7 +170,7 @@ const ChartsView: FC<ChartsViewProps> = (props) => {
           )}
         </section>
 
-        <section className={`${classes.panel} ${classes.progressPanel}`}>
+        <section className={`${classes.panel} ${classes.progressPanel}`} ref={progressPanelRef}>
           <div className={classes.panelHead}>
             <Text className={classes.panelTitle}>各方向解题进度</Text>
             <Text className={classes.panelHint}>服务状态</Text>

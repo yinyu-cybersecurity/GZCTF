@@ -128,3 +128,23 @@
 ## REMOVED Requirements
 
 （本次无移除需求）
+
+---
+
+## MODIFIED (Follow-up) — No-Scroll Enforcement for Charts View
+
+### Requirement: 图表屏排行榜和进度条目动态数量（替代固定上限）
+
+排行榜（左下）和解题进度（右下）面板的条目数量 MUST 根据面板可用高度动态计算，而非使用固定上限。确保在任何屏幕分辨率下内容不溢出、不出现滚动条。
+
+#### Scenario: 小屏幕下排行榜条目自动缩减
+- **Given** 排行榜数据充足但面板高度有限
+- **When** 面板可用高度只能容纳 5 个排行榜条目
+- **Then** 仅展示前 5 个条目
+- **And** 面板 header 始终可见
+- **And** 不出现滚动条
+
+#### Scenario: 窗口 resize 后重新计算
+- **Given** 用户调整浏览器窗口大小
+- **When** 面板高度变化
+- **Then** 排行榜和进度条目数量根据新高度重新计算
