@@ -47,6 +47,8 @@
       },
       "screen": {
         "back": "返回管理页",
+        "charts_view": "图表屏",
+        "logs_view": "日志屏",
         "copy_link": "复制大屏链接",
         "exit_fullscreen": "退出全屏",
         "fullscreen": "全屏展示"

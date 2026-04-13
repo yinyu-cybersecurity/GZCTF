@@ -47,6 +47,8 @@
       },
       "screen": {
         "back": "Back to Admin",
+        "charts_view": "Charts Screen",
+        "logs_view": "Logs Screen",
         "copy_link": "Copy Screen Link",
         "exit_fullscreen": "Exit Fullscreen",
         "fullscreen": "Fullscreen"

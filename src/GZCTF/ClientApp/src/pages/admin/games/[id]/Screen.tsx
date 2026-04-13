@@ -1,5 +1,5 @@
-﻿import { Badge, Button, Group, ScrollArea, Stack, Text, Title } from '@mantine/core'
-import { useClipboard } from '@mantine/hooks'
+import { Badge, Button, Group, ScrollArea, Stack, Text, Title } from '@mantine/core'
+import { useClipboard, useElementSize } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
 import {
   mdiArrowLeft,
@@ -8,17 +8,21 @@ import {
   mdiChevronUp,
   mdiClockOutline,
   mdiContentCopy,
+  mdiFormatListBulleted,
   mdiFullscreen,
   mdiFullscreenExit,
+  mdiMonitorDashboard,
 } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import * as signalR from '@microsoft/signalr'
 import dayjs from 'dayjs'
 import type { EChartsOption } from 'echarts'
 import { FC, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { GameStatus } from '@Components/GameCard'
 import { WithRole } from '@Components/WithRole'
+import ChartsView from '@Components/ChartsView'
+import LogsView from '@Components/LogsView'
 import { EchartsContainer } from '@Components/charts/EchartsContainer'
 import { useChallengeCategoryLabelMap } from '@Utils/Shared'
 import { useDemoScreenData } from '@Utils/screenDemoData'
@@ -138,6 +142,8 @@ const Screen: FC = () => {
   const { id } = useParams()
   const numId = parseInt(id ?? '-1', 10)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const viewMode = searchParams.get('view')
   const clipboard = useClipboard()
 
   const [now, setNow] = useState(() => Date.now())
@@ -575,6 +581,56 @@ const Screen: FC = () => {
     return <span className={classes.scoreDelta}>+{delta}</span>
   }
 
+  // Charts full-screen view
+  if (viewMode === 'charts') {
+    return (
+      <WithRole requiredRole={Role.Admin}>
+        <ChartsView
+          game={game}
+          now={now}
+          statusLabel={phaseLabel}
+          countdownLabel={countdownLabel}
+          countdownValue={countdownValue}
+          rankedTeams={rankedTeams}
+          challengeCount={scoreboard?.challengeCount ?? 0}
+          submissionSummary={submissionSummary}
+          categoryProgress={categoryProgress}
+          radarOption={radarOption}
+          trendOption={trendOption}
+        />
+      </WithRole>
+    )
+  }
+
+  // Logs full-screen view
+  if (viewMode === 'logs') {
+    const logEntries = useMemo(
+      () =>
+        submissionFeed.map((submission, index) => ({
+          id: `log-${submission.time}-${submission.team ?? submission.user ?? index}-${submission.challenge ?? index}`,
+          time: submission.time,
+          team: submission.team ?? submission.user ?? '未知战队',
+          challenge: submission.challenge ?? '未知题目',
+          status: formatAnswer(submission.status),
+          tone: toneFromResult(submission.status),
+        })),
+      [submissionFeed]
+    )
+
+    return (
+      <WithRole requiredRole={Role.Admin}>
+        <LogsView
+          game={game}
+          now={now}
+          statusLabel={phaseLabel}
+          submissionFeed={submissionFeed}
+          logEntries={logEntries}
+          submissionSummary={submissionSummary}
+        />
+      </WithRole>
+    )
+  }
+
   return (
     <WithRole requiredRole={Role.Admin}>
       <div className={classes.root}>
@@ -637,6 +693,24 @@ const Screen: FC = () => {
                   onClick={() => navigate(`/admin/games/${numId}/info`)}
                 >
                   返回
+                </Button>
+                <Button
+                  variant="light"
+                  size="compact-sm"
+                  className={classes.controlButton}
+                  leftSection={<Icon path={mdiMonitorDashboard} size={0.8} />}
+                  onClick={() => navigate('?view=charts')}
+                >
+                  图表屏
+                </Button>
+                <Button
+                  variant="light"
+                  size="compact-sm"
+                  className={classes.controlButton}
+                  leftSection={<Icon path={mdiFormatListBulleted} size={0.8} />}
+                  onClick={() => navigate('?view=logs')}
+                >
+                  日志屏
                 </Button>
                 <Button
                   variant="light"
