@@ -45,7 +45,7 @@ export const WithGameEditTab: FC<GameEditTabProps> = ({
     { icon: mdiTagOutline, title: t('admin.tab.games.divisions'), path: 'divisions' },
     { icon: mdiAccountGroupOutline, title: t('admin.tab.games.review'), path: 'review' },
     { icon: mdiFileDocumentCheckOutline, title: t('admin.tab.games.writeups'), path: 'writeups' },
-    { icon: mdiMonitorDashboard, title: t('admin.tab.games.screen'), path: 'screen' },
+    { icon: mdiMonitorDashboard, title: t('admin.tab.games.screen'), path: 'screen/control' },
   ]
 
   const getTab = (path: string) => pages.find((page) => path.includes(page.path))
