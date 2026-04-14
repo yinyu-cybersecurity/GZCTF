@@ -49,6 +49,8 @@ export interface ScreenModeMeta {
 const MAX_EVENTS = 18
 const MAX_SUBMISSIONS = 60
 const FALLBACK_DIMENSIONS = ['Web', 'Pwn', 'Crypto', 'Reverse', 'Misc']
+const RECENT_ACTIVITY_WINDOW_MS = 10 * 60 * 1000
+const CHART_FONT_FAMILY = 'Fira Code, JetBrains Mono, SFMono-Regular, Consolas, monospace'
 
 export const SCREEN_MODE_META: ScreenModeMeta[] = [
   {
@@ -336,6 +338,9 @@ export const useGameScreenData = (numId: number) => {
     () => [...(scoreboard?.items ?? [])].sort((left, right) => left.rank - right.rank),
     [scoreboard?.items]
   )
+  const topTeam = rankedTeams[0]
+  const runnerUp = rankedTeams[1]
+  const leaderGap = Math.max(0, (topTeam?.score ?? 0) - (runnerUp?.score ?? 0))
   const challengeList = useMemo(
     () =>
       Object.values(scoreboard?.challenges ?? {})
@@ -344,6 +349,7 @@ export const useGameScreenData = (numId: number) => {
     [scoreboard?.challenges]
   )
   const challengeMetaMap = useMemo(() => new Map(challengeList.map((item) => [item.title, item])), [challengeList])
+  const hotChallenge = challengeList[0]
 
   const categoryHeat = useMemo(() => {
     const map = new Map<string, number>()
@@ -360,6 +366,7 @@ export const useGameScreenData = (numId: number) => {
       .sort((left, right) => right.solved - left.solved)
       .slice(0, 6)
   }, [challengeCategoryLabelMap, challengeList])
+  const hotCategory = categoryHeat[0]
 
   const moments = useMemo(
     () =>
@@ -387,6 +394,46 @@ export const useGameScreenData = (numId: number) => {
       coverage: clampPercent(Math.round(coverage)),
     }
   }, [activeTeamCount, scoreboard?.challengeCount, submissionFeed, totalSolveCount])
+
+  const recentSubmissions = useMemo(
+    () => submissionFeed.filter((item) => !!item.time && now - item.time <= RECENT_ACTIVITY_WINDOW_MS),
+    [now, submissionFeed]
+  )
+
+  const recentAcceptedCount = useMemo(
+    () => recentSubmissions.filter((item) => item.status === AnswerResult.Accepted).length,
+    [recentSubmissions]
+  )
+
+  const recentAlertCount = useMemo(
+    () =>
+      eventFeed.filter((item) => item.type === EventType.CheatDetected && now - item.time <= RECENT_ACTIVITY_WINDOW_MS)
+        .length,
+    [eventFeed, now]
+  )
+
+  const activityLevel = useMemo(() => {
+    const heat = recentSubmissions.length
+    if (heat >= 16) return '高压态势'
+    if (heat >= 8) return '高速活跃'
+    if (heat >= 3) return '持续扫描'
+    return '低频巡检'
+  }, [recentSubmissions.length])
+
+  const threatLevel = useMemo(() => {
+    if (recentAlertCount >= 2) return '告警提升'
+    if (recentAlertCount === 1) return '重点监控'
+    if (recentAcceptedCount >= 6) return '攻势增强'
+    return '链路稳定'
+  }, [recentAcceptedCount, recentAlertCount])
+
+  const threatIndex = useMemo(
+    () =>
+      clampPercent(
+        Math.round(Math.min(100, recentSubmissions.length * 6 + recentAcceptedCount * 8 + recentAlertCount * 22))
+      ),
+    [recentAcceptedCount, recentAlertCount, recentSubmissions.length]
+  )
 
   const categoryProgress = useMemo(() => {
     const map = new Map<string, ScreenCategoryProgress>()
@@ -462,6 +509,13 @@ export const useGameScreenData = (numId: number) => {
     return { current: Math.max(1, Math.ceil((progress / 100) * total)), total }
   }, [game?.end, game?.start, now, statusInfo.status])
 
+  const missionProgress = useMemo(() => {
+    if (!game?.start || !game?.end) return 0
+    if (statusInfo.status === GameStatus.Coming) return 0
+    if (statusInfo.status === GameStatus.Ended) return 100
+    return clampPercent(Math.round(((now - game.start) / Math.max(game.end - game.start, 1)) * 100))
+  }, [game?.end, game?.start, now, statusInfo.status])
+
   const scorePulse = useMemo(
     () =>
       Array.from(scoreDeltaMap.values())
@@ -484,37 +538,49 @@ export const useGameScreenData = (numId: number) => {
     () => ({
       backgroundColor: 'transparent',
       animationDuration: 900,
+      textStyle: {
+        fontFamily: CHART_FONT_FAMILY,
+      },
       radar: {
         center: ['50%', '52%'],
-        radius: '72%',
+        radius: '74%',
         splitNumber: 5,
-        axisName: { color: '#9bd9ff', fontSize: 14 },
+        axisName: {
+          color: '#d4f7ff',
+          fontSize: 12,
+          fontWeight: 700,
+        },
         splitArea: {
           areaStyle: {
             color: [
-              'rgba(38, 83, 187, 0.04)',
-              'rgba(38, 83, 187, 0.02)',
-              'rgba(38, 83, 187, 0.04)',
-              'rgba(38, 83, 187, 0.02)',
-              'rgba(38, 83, 187, 0.04)',
+              'rgba(22, 71, 150, 0.06)',
+              'rgba(18, 42, 101, 0.04)',
+              'rgba(22, 71, 150, 0.05)',
+              'rgba(18, 42, 101, 0.03)',
+              'rgba(22, 71, 150, 0.05)',
             ],
           },
         },
-        axisLine: { lineStyle: { color: 'rgba(110, 177, 255, 0.2)' } },
-        splitLine: { lineStyle: { color: 'rgba(110, 177, 255, 0.18)' } },
+        axisLine: { lineStyle: { color: 'rgba(123, 215, 255, 0.24)' } },
+        splitLine: { lineStyle: { color: 'rgba(123, 215, 255, 0.2)' } },
         indicator: radarMetrics.map((item) => ({ name: item.name, max: item.max })),
       },
       series: [
         {
           type: 'radar',
           symbol: 'circle',
-          symbolSize: 7,
+          symbolSize: 8,
           data: radarSeriesData.map((item) => ({
             name: item.name,
             value: item.value,
-            areaStyle: { color: 'rgba(126, 241, 255, 0.20)' },
-            lineStyle: { color: '#8ff6ff', width: 2 },
-            itemStyle: { color: '#eff7ff', borderColor: '#8ff6ff', borderWidth: 2 },
+            areaStyle: { color: 'rgba(74, 224, 255, 0.24)' },
+            lineStyle: {
+              color: '#7eeaff',
+              width: 2.4,
+              shadowBlur: 12,
+              shadowColor: 'rgba(74, 224, 255, 0.35)',
+            },
+            itemStyle: { color: '#f1fbff', borderColor: '#7eeaff', borderWidth: 2 },
           })),
         },
       ],
@@ -527,35 +593,62 @@ export const useGameScreenData = (numId: number) => {
       return {
         backgroundColor: 'transparent',
         animationDuration: 900,
-        tooltip: { trigger: 'axis' },
+        textStyle: {
+          fontFamily: CHART_FONT_FAMILY,
+        },
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(6, 16, 37, 0.92)',
+          borderColor: 'rgba(104, 222, 255, 0.28)',
+          textStyle: { color: '#e6f8ff' },
+        },
         legend: {
           top: 6,
           right: 12,
-          textStyle: { color: '#cce7ff', fontSize: 11 },
+          textStyle: { color: '#d8f3ff', fontSize: 11 },
           itemWidth: 12,
           itemHeight: 8,
         },
         grid: { left: 46, right: 16, top: 42, bottom: 24 },
         xAxis: {
           type: 'time',
-          axisLabel: { color: '#7fa9d5' },
-          axisLine: { lineStyle: { color: 'rgba(92, 131, 190, 0.24)' } },
+          axisLabel: { color: '#7fb7de' },
+          axisLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.24)' } },
           splitLine: { show: false },
         },
         yAxis: {
           type: 'value',
-          axisLabel: { color: '#7fa9d5' },
+          axisLabel: { color: '#7fb7de' },
           axisLine: { show: false },
-          splitLine: { lineStyle: { color: 'rgba(92, 131, 190, 0.14)' } },
+          splitLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.14)' } },
         },
-        color: ['#d1f2ff', '#f9dd77', '#80f5ff', '#8e9cff', '#ff9aa8'],
+        color: ['#73f0ff', '#f8d76b', '#65a7ff', '#b088ff', '#ff8ea1'],
         series: timelineTeams.map((team, index) => ({
           type: 'line',
           name: team.name,
           smooth: true,
           showSymbol: false,
-          lineStyle: { width: index === 0 ? 2.4 : 1.7 },
-          areaStyle: index === 0 ? { color: 'rgba(145, 246, 255, 0.06)' } : undefined,
+          lineStyle: {
+            width: index === 0 ? 2.8 : 1.7,
+            shadowBlur: index === 0 ? 10 : 0,
+            shadowColor: index === 0 ? 'rgba(115, 240, 255, 0.22)' : 'transparent',
+          },
+          areaStyle:
+            index === 0
+              ? {
+                  color: {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [
+                      { offset: 0, color: 'rgba(115, 240, 255, 0.20)' },
+                      { offset: 1, color: 'rgba(115, 240, 255, 0.02)' },
+                    ],
+                  },
+                }
+              : undefined,
           data: team.items.map((item) => [item.time, item.score]),
         })),
       }
@@ -564,12 +657,20 @@ export const useGameScreenData = (numId: number) => {
     return {
       backgroundColor: 'transparent',
       animationDuration: 900,
-      tooltip: { trigger: 'axis' },
+      textStyle: {
+        fontFamily: CHART_FONT_FAMILY,
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(6, 16, 37, 0.92)',
+        borderColor: 'rgba(104, 222, 255, 0.28)',
+        textStyle: { color: '#e6f8ff' },
+      },
       grid: { left: 46, right: 16, top: 24, bottom: 24 },
       xAxis: {
         type: 'category',
-        axisLabel: { color: '#7fa9d5' },
-        axisLine: { lineStyle: { color: 'rgba(92, 131, 190, 0.24)' } },
+        axisLabel: { color: '#7fb7de' },
+        axisLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.24)' } },
         data: submissionFeed
           .slice(0, 8)
           .reverse()
@@ -577,8 +678,8 @@ export const useGameScreenData = (numId: number) => {
       },
       yAxis: {
         type: 'value',
-        axisLabel: { color: '#7fa9d5' },
-        splitLine: { lineStyle: { color: 'rgba(92, 131, 190, 0.14)' } },
+        axisLabel: { color: '#7fb7de' },
+        splitLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.14)' } },
       },
       series: [
         {
@@ -589,13 +690,166 @@ export const useGameScreenData = (numId: number) => {
             .slice(0, 8)
             .reverse()
             .map((item) => (item.status === AnswerResult.Accepted ? 1 : 0)),
-          lineStyle: { color: '#8ff6ff', width: 2 },
-          areaStyle: { color: 'rgba(145, 246, 255, 0.10)' },
+          lineStyle: { color: '#73f0ff', width: 2.4 },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(115, 240, 255, 0.24)' },
+                { offset: 1, color: 'rgba(115, 240, 255, 0.03)' },
+              ],
+            },
+          },
           itemStyle: { color: '#d4fcff' },
         },
       ],
     }
   }, [submissionFeed, timelineTeams])
+
+  const rankingOption = useMemo<EChartsOption>(() => {
+    const rankingItems = rankedTeams.slice(0, 8)
+
+    return {
+      backgroundColor: 'transparent',
+      animationDuration: 900,
+      textStyle: {
+        fontFamily: CHART_FONT_FAMILY,
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(6, 16, 37, 0.92)',
+        borderColor: 'rgba(104, 222, 255, 0.28)',
+        textStyle: { color: '#e6f8ff' },
+      },
+      grid: { left: 18, right: 30, top: 18, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'value',
+        axisLabel: { color: '#7fb7de' },
+        splitLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.12)' } },
+      },
+      yAxis: {
+        type: 'category',
+        inverse: false,
+        axisTick: { show: false },
+        axisLine: { show: false },
+        axisLabel: {
+          color: '#d8f3ff',
+          fontSize: 11,
+          overflow: 'truncate',
+          width: 110,
+        },
+        data: rankingItems.map((item) => item.name).reverse(),
+      },
+      series: [
+        {
+          type: 'bar',
+          barWidth: '42%',
+          showBackground: true,
+          backgroundStyle: { color: 'rgba(255,255,255,0.04)' },
+          label: {
+            show: true,
+            position: 'right',
+            color: '#eefbff',
+            formatter: (params: any) => `${params.value}`,
+          },
+          itemStyle: {
+            borderRadius: [0, 6, 6, 0],
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 1,
+              y2: 0,
+              colorStops: [
+                { offset: 0, color: '#2f7bff' },
+                { offset: 0.55, color: '#47dfff' },
+                { offset: 1, color: '#7effb2' },
+              ],
+            },
+          },
+          data: rankingItems.map((item) => item.score).reverse(),
+        },
+      ],
+    }
+  }, [rankedTeams])
+
+  const progressChartOption = useMemo<EChartsOption>(() => {
+    const progressItems = categoryProgress.slice(0, 6)
+
+    return {
+      backgroundColor: 'transparent',
+      animationDuration: 900,
+      textStyle: {
+        fontFamily: CHART_FONT_FAMILY,
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(6, 16, 37, 0.92)',
+        borderColor: 'rgba(104, 222, 255, 0.28)',
+        textStyle: { color: '#e6f8ff' },
+        formatter: (params: any) => {
+          const item = progressItems.find((entry) => entry.name === params[0]?.name)
+          if (!item) return ''
+          return `${item.name}<br/>渗透率 ${item.percent}%<br/>已攻破 ${item.cracked}/${item.total}<br/>近期流量 ${item.attempts}`
+        },
+      },
+      grid: { left: 18, right: 26, top: 18, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'value',
+        max: 100,
+        axisLabel: { color: '#7fb7de', formatter: '{value}%' },
+        splitLine: { lineStyle: { color: 'rgba(104, 166, 210, 0.12)' } },
+      },
+      yAxis: {
+        type: 'category',
+        axisTick: { show: false },
+        axisLine: { show: false },
+        axisLabel: {
+          color: '#d8f3ff',
+          fontSize: 11,
+          overflow: 'truncate',
+          width: 96,
+        },
+        data: progressItems.map((item) => item.name).reverse(),
+      },
+      series: [
+        {
+          type: 'bar',
+          barWidth: '42%',
+          showBackground: true,
+          backgroundStyle: { color: 'rgba(255,255,255,0.04)' },
+          label: {
+            show: true,
+            position: 'right',
+            color: '#eefbff',
+            formatter: (params: any) => `${params.value}%`,
+          },
+          itemStyle: {
+            borderRadius: [0, 6, 6, 0],
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 1,
+              y2: 0,
+              colorStops: [
+                { offset: 0, color: '#4d72ff' },
+                { offset: 0.5, color: '#4ce2ff' },
+                { offset: 1, color: '#86ffcb' },
+              ],
+            },
+          },
+          data: progressItems.map((item) => item.percent).reverse(),
+        },
+      ],
+    }
+  }, [categoryProgress])
 
   return {
     game,
@@ -606,19 +860,32 @@ export const useGameScreenData = (numId: number) => {
     countdownLabel,
     countdownValue,
     roundInfo,
+    missionProgress,
     playerCount,
     activeTeamCount,
     totalSolveCount,
     rankedTeams,
+    topTeam,
+    runnerUp,
+    leaderGap,
     moments,
     liveDynamics,
     rankDeltaMap,
     scoreDeltaMap,
     scorePulse,
+    hotChallenge,
+    hotCategory,
+    recentAcceptedCount,
+    recentAlertCount,
+    activityLevel,
+    threatLevel,
+    threatIndex,
     submissionSummary,
     categoryProgress,
     radarOption,
     trendOption,
+    rankingOption,
+    progressChartOption,
     scoreboardUpdatedAt: scoreboard?.updateTimeUtc ?? now,
   }
 }

@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
       webfontDownload(
         [
           'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lexend:wght@100..900&display=swap',
+          'https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap',
         ],
         {
           injectAsStyleTag: false,

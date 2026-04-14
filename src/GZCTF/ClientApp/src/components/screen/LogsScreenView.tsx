@@ -26,6 +26,7 @@ const LogsScreenView: FC<LogsScreenViewProps> = ({ gameId }) => {
       countdownLabel={data.countdownLabel}
       countdownValue={data.countdownValue}
       statusLabel={data.phaseLabel}
+      subtitle="LIVE INCIDENT STREAM"
       boardClassName={classes.logBoard}
       leftAside={
         <div className={classes.roundBadge}>
@@ -48,6 +49,10 @@ const LogsScreenView: FC<LogsScreenViewProps> = ({ gameId }) => {
           <div className={classes.statBadge}>
             <span>有效解题</span>
             <strong>{data.submissionSummary.accepted}</strong>
+          </div>
+          <div className={classes.statBadge}>
+            <span>告警等级</span>
+            <strong>{data.threatLevel}</strong>
           </div>
         </div>
       }

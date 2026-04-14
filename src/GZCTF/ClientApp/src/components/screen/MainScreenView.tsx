@@ -50,6 +50,32 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
   const leaderboard = data.rankedTeams.slice(0, visibleRankCount)
   const leaderboardMaxScore = Math.max(1, ...leaderboard.map((item) => item.score), 1)
   const progressItems = data.categoryProgress.slice(0, visibleProgressCount)
+  const topTeamSolveRatio =
+    data.topTeam && (data.scoreboard?.challengeCount ?? 0) > 0
+      ? Math.round((data.topTeam.solvedCount / Math.max(data.scoreboard?.challengeCount ?? 1, 1)) * 100)
+      : 0
+  const overviewStats = [
+    {
+      label: '在线战队',
+      value: data.activeTeamCount,
+      detail: `活跃态势 ${data.activityLevel}`,
+    },
+    {
+      label: '参赛人数',
+      value: data.playerCount,
+      detail: `近期攻破 ${data.recentAcceptedCount}`,
+    },
+    {
+      label: '有效解题',
+      value: data.totalSolveCount,
+      detail: `命中率 ${data.submissionSummary.solveRate}%`,
+    },
+    {
+      label: '总提交量',
+      value: data.submissionSummary.total,
+      detail: `威胁指数 ${data.threatIndex}`,
+    },
+  ]
 
   return (
     <ScreenDisplayShell
@@ -58,6 +84,7 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       countdownLabel={data.countdownLabel}
       countdownValue={data.countdownValue}
       statusLabel={data.phaseLabel}
+      subtitle="PRIMARY TACTICAL OVERVIEW"
       boardClassName={classes.mainBoard}
       leftAside={
         <div className={classes.roundBadge}>
@@ -74,8 +101,12 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
             <strong>{data.submissionSummary.solveRate}%</strong>
           </div>
           <div className={classes.statBadge}>
-            <span>实时分差</span>
-            <strong>{data.scorePulse > 0 ? `+${data.scorePulse}` : '+0'}</strong>
+            <span>威胁指数</span>
+            <strong>{data.threatIndex}</strong>
+          </div>
+          <div className={classes.statBadge}>
+            <span>态势等级</span>
+            <strong>{data.threatLevel}</strong>
           </div>
         </div>
       }
@@ -83,7 +114,7 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       <section className={`${classes.panel} ${classes.noticePanel}`}>
         <div className={classes.panelHead}>
           <Text className={classes.panelTitle}>赛事公告</Text>
-          <Text className={classes.panelHint}>实时攻击日志</Text>
+          <Text className={classes.panelHint}>Incident broadcast</Text>
         </div>
         <div ref={noticeBody.ref} className={classes.panelBody}>
           {noticeItems.length > 0 ? (
@@ -112,29 +143,59 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       </section>
 
       <section className={`${classes.panel} ${classes.statsPanel}`}>
-        <div className={classes.statCards}>
-          <div className={classes.statCard}>
-            <Text className={classes.statLabel}>参赛人数</Text>
-            <Text className={classes.statValue}>{data.playerCount}</Text>
+        <div className={classes.commandHero}>
+          <div className={classes.commandHeroMain}>
+            <Text className={classes.commandHeroLabel}>战况摘要</Text>
+            <Text className={classes.commandHeroTitle}>{data.topTeam?.name ?? '等待首个领先战队'}</Text>
+            <Text className={classes.commandHeroDetail}>
+              当前领先 {data.leaderGap} 分{data.runnerUp ? `，第二名 ${data.runnerUp.name}` : ''}
+            </Text>
+            <div className={classes.commandHeroTrack}>
+              <div className={classes.commandHeroFill} style={{ width: `${data.missionProgress}%` }} />
+            </div>
+            <div className={classes.commandHeroMeta}>
+              <span>任务进度 {data.missionProgress}%</span>
+              <span>头部覆盖率 {topTeamSolveRatio}%</span>
+            </div>
           </div>
-          <div className={classes.statCard}>
-            <Text className={classes.statLabel}>解答题目数</Text>
-            <Text className={classes.statValue}>{data.totalSolveCount}</Text>
+          <div className={classes.commandHeroSide}>
+            <div className={classes.heroSignalCard}>
+              <span>威胁指数</span>
+              <strong>{data.threatIndex}</strong>
+              <small>{data.threatLevel}</small>
+            </div>
+            <div className={classes.heroSignalCard}>
+              <span>实时脉冲</span>
+              <strong>{data.scorePulse > 0 ? `+${data.scorePulse}` : '+0'}</strong>
+              <small>{data.activityLevel}</small>
+            </div>
           </div>
         </div>
-        <div className={classes.statFooter}>
-          <div className={classes.statFooterItem}>
-            <span>在线战队</span>
-            <strong>{data.activeTeamCount}</strong>
-          </div>
-          <div className={classes.statFooterItem}>
-            <span>覆盖率</span>
-            <strong>{data.submissionSummary.coverage}%</strong>
-          </div>
-          <div className={classes.statFooterItem}>
+        <div className={classes.kpiGrid}>
+          {overviewStats.map((item, index) => (
+            <article key={item.label} className={classes.kpiCard} data-accent={index === 0 || index === 3 || undefined}>
+              <Text className={classes.kpiLabel}>{item.label}</Text>
+              <Text className={classes.kpiValue}>{item.value}</Text>
+              <Text className={classes.kpiDetail}>{item.detail}</Text>
+            </article>
+          ))}
+        </div>
+        <div className={classes.telemetryGrid}>
+          <article className={classes.telemetryCard}>
+            <span>热点题目</span>
+            <strong>{data.hotChallenge?.title ?? '待激活'}</strong>
+            <small>已攻破 {data.hotChallenge?.solved ?? 0} 队</small>
+          </article>
+          <article className={classes.telemetryCard}>
+            <span>热点方向</span>
+            <strong>{data.hotCategory?.name ?? '待激活'}</strong>
+            <small>累计命中 {data.hotCategory?.solved ?? 0}</small>
+          </article>
+          <article className={classes.telemetryCard}>
             <span>榜单刷新</span>
             <strong>{dayjs(data.scoreboardUpdatedAt).format('HH:mm:ss')}</strong>
-          </div>
+            <small>覆盖率 {data.submissionSummary.coverage}%</small>
+          </article>
         </div>
       </section>
 
@@ -156,7 +217,10 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
 
                 return (
                   <article key={team.id} className={classes.rankItem} data-top={index < 3 || undefined}>
-                    <div className={classes.rankIndex}>{team.rank}</div>
+                    <div className={classes.rankIndex}>
+                      <span className={classes.rankIndexLabel}>RANK</span>
+                      <strong>{team.rank}</strong>
+                    </div>
                     <div className={classes.rankBody}>
                       <div className={classes.rankLine}>
                         <Text className={classes.rankName} title={team.name}>
@@ -205,6 +269,20 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
           <Text className={classes.panelTitle}>各方向解题进度</Text>
           <Text className={classes.panelHint}>全局覆盖率 {data.submissionSummary.coverage}%</Text>
         </div>
+        <div className={classes.signalStrip}>
+          <div className={classes.signalChip}>
+            <span>热点方向</span>
+            <strong>{data.hotCategory?.name ?? '待激活'}</strong>
+          </div>
+          <div className={classes.signalChip}>
+            <span>异常告警</span>
+            <strong>{data.recentAlertCount}</strong>
+          </div>
+          <div className={classes.signalChip}>
+            <span>近期攻破</span>
+            <strong>{data.recentAcceptedCount}</strong>
+          </div>
+        </div>
         <div ref={progressBody.ref} className={classes.panelBody}>
           {progressItems.length > 0 ? (
             <Stack gap="sm" className={classes.fillStack}>
@@ -214,7 +292,10 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
                     <Text className={classes.progressName} title={item.name}>
                       {item.name}
                     </Text>
-                    <Text className={classes.progressPercent}>{item.percent}%</Text>
+                    <div className={classes.progressBadge}>
+                      <span>流量 {item.attempts}</span>
+                      <Text className={classes.progressPercent}>{item.percent}%</Text>
+                    </div>
                   </div>
                   <div className={classes.progressTrack}>
                     <div className={classes.progressFill} style={{ width: `${item.percent}%` }} />
@@ -236,7 +317,7 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       <section className={`${classes.panel} ${classes.radarPanel}`}>
         <div className={classes.panelHead}>
           <Text className={classes.panelTitle}>攻击流向图</Text>
-          <Text className={classes.panelHint}>分类攻防态势</Text>
+          <Text className={classes.panelHint}>Category combat pressure</Text>
         </div>
         <div className={`${classes.panelBody} ${classes.chartBody}`}>
           <div className={classes.radarHalo} />
@@ -247,7 +328,7 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       <section className={`${classes.panel} ${classes.trendPanel}`}>
         <div className={classes.panelHead}>
           <Text className={classes.panelTitle}>得分趋势</Text>
-          <Text className={classes.panelHint}>实时分数变化</Text>
+          <Text className={classes.panelHint}>Live score pulse</Text>
         </div>
         <div className={`${classes.panelBody} ${classes.chartBody}`}>
           <EchartsContainer option={data.trendOption} className={classes.chart} />
@@ -257,7 +338,7 @@ const MainScreenView: FC<MainScreenViewProps> = ({ gameId }) => {
       <section className={`${classes.panel} ${classes.activityPanel}`}>
         <div className={classes.panelHead}>
           <Text className={classes.panelTitle}>消息动态</Text>
-          <Text className={classes.panelHint}>WebSocket 实时推送</Text>
+          <Text className={classes.panelHint}>WebSocket tactical relay</Text>
         </div>
         <div ref={activityBody.ref} className={classes.panelBody}>
           {activityItems.length > 0 ? (

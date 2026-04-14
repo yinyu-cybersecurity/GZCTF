@@ -2,27 +2,49 @@
   --screen-pad: clamp(12px, 0.9vw, 22px);
   --screen-gap: clamp(10px, 0.8vw, 18px);
   --panel-pad: clamp(12px, 0.95vw, 20px);
-  --meta-font: clamp(11px, 0.65vw, 14px);
+  --meta-font: clamp(11px, 0.65vw, 13px);
   --small-font: clamp(12px, 0.72vw, 15px);
   --body-font: clamp(13px, 0.85vw, 18px);
-  --title-font: clamp(28px, 2.05vw, 50px);
+  --title-font: clamp(30px, 2.25vw, 54px);
   --panel-title-font: clamp(15px, 0.95vw, 20px);
   position: relative;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  color: #dcecff;
-  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  color: #e9f7ff;
+  font-family: 'Fira Code', 'JetBrains Mono', 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  font-variant-numeric: tabular-nums;
   background:
-    radial-gradient(circle at 50% 0%, rgba(43, 74, 180, 0.45), transparent 38%),
-    radial-gradient(circle at 20% 70%, rgba(11, 116, 203, 0.16), transparent 28%),
-    radial-gradient(circle at 80% 30%, rgba(18, 92, 189, 0.18), transparent 24%),
-    linear-gradient(180deg, #0a1026 0%, #091028 46%, #09132f 100%);
+    radial-gradient(circle at 50% -10%, rgba(71, 151, 255, 0.22), transparent 32%),
+    radial-gradient(circle at 18% 72%, rgba(0, 224, 255, 0.14), transparent 22%),
+    radial-gradient(circle at 82% 22%, rgba(130, 84, 255, 0.12), transparent 18%),
+    linear-gradient(135deg, #030712 0%, #06111e 28%, #071a31 58%, #08162d 100%);
+}
+
+.root::before,
+.root::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.root::before {
+  background:
+    radial-gradient(circle at center, transparent 0 52%, rgba(0, 0, 0, 0.28) 78%, rgba(0, 0, 0, 0.42) 100%),
+    linear-gradient(180deg, rgba(2, 10, 20, 0.08), rgba(2, 10, 20, 0.28));
+}
+
+.root::after {
+  inset: 1.2rem;
+  border: 1px solid rgba(108, 221, 255, 0.08);
+  border-radius: 1.5rem;
 }
 
 .backgroundGrid,
 .backgroundGlowLeft,
 .backgroundGlowRight,
+.backgroundReticle,
 .scanline {
   position: absolute;
   inset: 0;
@@ -31,29 +53,43 @@
 
 .backgroundGrid {
   background-image:
-    linear-gradient(rgba(77, 128, 214, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(77, 128, 214, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 62%, rgba(255, 255, 255, 0.09) 0 1px, transparent 1px);
+    linear-gradient(rgba(81, 151, 220, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(81, 151, 220, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(123, 219, 255, 0.05) 0 12%, transparent 12% 88%, rgba(123, 219, 255, 0.05) 88% 100%);
   background-size:
     48px 48px,
     48px 48px,
-    240px 240px,
     280px 280px;
   opacity: 0.35;
 }
 
 .backgroundGlowLeft {
-  background: radial-gradient(circle at 28% 55%, rgba(71, 171, 255, 0.22), transparent 20%);
+  background: radial-gradient(circle at 22% 54%, rgba(42, 207, 255, 0.18), transparent 22%);
 }
 
 .backgroundGlowRight {
-  background: radial-gradient(circle at 72% 42%, rgba(118, 242, 255, 0.16), transparent 18%);
+  background: radial-gradient(circle at 78% 26%, rgba(115, 108, 255, 0.16), transparent 18%);
+}
+
+.backgroundReticle {
+  background:
+    radial-gradient(
+      circle at 50% 54%,
+      transparent 0 16%,
+      rgba(123, 219, 255, 0.08) 16% 16.4%,
+      transparent 16.4% 25%,
+      rgba(123, 219, 255, 0.05) 25% 25.3%,
+      transparent 25.3%
+    ),
+    linear-gradient(90deg, transparent 0 49.94%, rgba(123, 219, 255, 0.08) 49.94% 50.06%, transparent 50.06%),
+    linear-gradient(180deg, transparent 0 53.94%, rgba(123, 219, 255, 0.08) 53.94% 54.06%, transparent 54.06%);
+  opacity: 0.5;
 }
 
 .scanline {
-  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 6px);
-  opacity: 0.08;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 5px);
+  opacity: 0.12;
+  mix-blend-mode: screen;
 }
 
 .shell {
@@ -69,7 +105,7 @@
 
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr) minmax(0, 20rem);
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr) minmax(0, 22rem);
   align-items: center;
   gap: var(--screen-gap);
 }
@@ -77,7 +113,7 @@
 .headerSide {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--screen-gap) * 0.6);
+  gap: calc(var(--screen-gap) * 0.55);
   min-width: 0;
 }
 
@@ -85,53 +121,91 @@
   align-items: flex-end;
 }
 
+.headerSectionLabel,
 .headerMetaLabel,
 .headerSubtitle,
 .panelHint,
 .itemTime,
 .rankMeta,
 .progressMeta,
-.statLabel,
-.statFooterItem span {
-  color: #7fa9d5;
+.statBadge span,
+.kpiLabel,
+.kpiDetail,
+.telemetryCard span,
+.telemetryCard small,
+.rankIndexLabel {
+  color: #7baecc;
 }
 
+.headerSectionLabel,
 .headerMetaLabel,
 .headerSubtitle,
-.panelHint {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.panelHint,
+.rankIndexLabel {
   font-size: var(--meta-font);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
 }
 
 .headerMetaValue,
 .roundBadge,
 .timeBadge,
-.statBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: clamp(8px, 0.75vw, 14px) clamp(10px, 0.95vw, 16px);
-  border: 1px solid rgba(103, 155, 255, 0.32);
-  background: rgba(8, 18, 44, 0.86);
-  box-shadow: inset 0 0 18px rgba(13, 37, 95, 0.55);
+.statBadge,
+.headerSystemTag,
+.statusPill {
+  border: 1px solid rgba(104, 217, 255, 0.24);
+  background: linear-gradient(180deg, rgba(11, 24, 44, 0.92), rgba(6, 16, 34, 0.76));
+  box-shadow:
+    inset 0 0 24px rgba(14, 46, 95, 0.48),
+    0 0 18px rgba(36, 135, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.headerMetaValue,
+.currentTime,
+.statusPill,
+.roundBadge span,
+.statBadge strong,
+.kpiValue,
+.telemetryCard strong,
+.rankIndex strong,
+.rankScore,
+.progressPercent {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
 .headerMetaValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   width: fit-content;
-  color: #eef7ff;
-  font-size: clamp(20px, 1.25vw, 30px);
+  padding: clamp(10px, 0.82vw, 15px) clamp(12px, 1vw, 18px);
+  color: #f5fbff;
+  font-size: clamp(20px, 1.28vw, 30px);
   font-weight: 800;
 }
 
-.roundBadge {
+.headerSystemTag {
   width: fit-content;
-  color: #9acaff;
+  padding: 0.5rem 0.85rem;
+  color: #8edbff;
+  font-size: var(--meta-font);
+  letter-spacing: 0.16em;
+}
+
+.roundBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: fit-content;
+  padding: clamp(8px, 0.7vw, 13px) clamp(10px, 0.9vw, 16px);
+  color: #9dcff4;
   font-size: var(--small-font);
 }
 
 .roundBadge span {
-  color: #78f3ff;
+  color: #7ff3ff;
   font-size: clamp(18px, 1vw, 24px);
   font-weight: 800;
 }
@@ -140,24 +214,21 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: calc(var(--screen-gap) * 0.6);
+  gap: calc(var(--screen-gap) * 0.55);
 }
 
 .statBadge {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.15rem;
-  min-width: 7rem;
-}
-
-.statBadge span {
-  color: #7fa9d5;
-  font-size: var(--small-font);
+  gap: 0.2rem;
+  min-width: 7.4rem;
+  padding: clamp(9px, 0.75vw, 14px) clamp(10px, 0.9vw, 16px);
 }
 
 .statBadge strong {
-  color: #eef7ff;
-  font-size: clamp(16px, 0.95vw, 22px);
+  color: #effbff;
+  font-size: clamp(15px, 0.92vw, 22px);
   line-height: 1.15;
 }
 
@@ -173,58 +244,125 @@
   position: relative;
 }
 
-.headerWing::before {
+.headerWing::before,
+.headerWing::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-top: 2px solid rgba(107, 181, 255, 0.82);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-.headerWingLeft::before {
-  clip-path: polygon(0 0, 84% 0, 100% 100%, 0 100%);
+.headerWing::before {
+  inset-inline: 0;
+  border-top: 1px solid rgba(123, 219, 255, 0.72);
 }
 
-.headerWingRight::before {
-  clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
+.headerWing::after {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(123, 219, 255, 0.56);
+  background: rgba(8, 23, 40, 0.7);
+}
+
+.headerWingLeft::after {
+  left: 0;
+}
+
+.headerWingRight::after {
+  right: 0;
 }
 
 .headerTitleWrap {
+  position: relative;
   min-width: 0;
   text-align: center;
 }
 
+.headerSubtitle {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
 .headerTitle {
   margin: 0;
-  color: #eef6ff;
+  color: #f4fbff;
   font-size: var(--title-font);
+  font-weight: 900;
   letter-spacing: 0.08em;
-  line-height: 1.08;
+  line-height: 1.05;
+  text-shadow: 0 0 28px rgba(100, 231, 255, 0.14);
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+.headerSignature {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-top: 0.45rem;
+  color: #82c5eb;
+  font-size: var(--small-font);
+  letter-spacing: 0.12em;
 }
 
 .headerAccent {
-  width: min(14rem, 60%);
-  height: 0.28rem;
-  margin: 0.45rem auto 0;
+  width: min(18rem, 72%);
+  height: 0.3rem;
+  margin: 0.55rem auto 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #7cf2ff 25%, #7cf2ff 75%, transparent);
-  box-shadow: 0 0 14px rgba(124, 242, 255, 0.55);
+  background: linear-gradient(90deg, transparent, #78e9ff 18%, #89a7ff 50%, #78e9ff 82%, transparent);
+  box-shadow: 0 0 16px rgba(120, 233, 255, 0.45);
 }
 
 .timeBadge {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  color: #dcecff;
-  min-width: min(20rem, 100%);
+  gap: 1rem;
+  min-width: min(22rem, 100%);
+  padding: clamp(10px, 0.82vw, 15px) clamp(12px, 1vw, 18px);
+}
+
+.timeBadgeMain {
+  min-width: 0;
 }
 
 .currentTime {
-  font-weight: 700;
+  color: #f4fbff;
   font-size: clamp(15px, 0.92vw, 20px);
+  font-weight: 700;
+}
+
+.statusPill {
+  flex-shrink: 0;
+  padding: 0.65rem 0.9rem;
+  color: #d8f6ff;
+  font-size: var(--small-font);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.statusPill[data-status='进行中'] {
+  color: #6ceeff;
+  border-color: rgba(108, 238, 255, 0.38);
+  box-shadow:
+    inset 0 0 24px rgba(14, 86, 95, 0.35),
+    0 0 18px rgba(64, 208, 255, 0.12);
+}
+
+.statusPill[data-status='未开始'] {
+  color: #ffd67a;
+}
+
+.statusPill[data-status='已结束'] {
+  color: #cbd6e1;
 }
 
 .board {
   flex: 1;
-  min-height: 0;
   min-width: 0;
+  min-height: 0;
 }
 
 .mainBoard {
@@ -282,15 +420,28 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   min-width: 0;
+  min-height: 0;
   padding: var(--panel-pad);
-  border: 1px solid rgba(74, 128, 224, 0.4);
-  background: linear-gradient(180deg, rgba(11, 18, 46, 0.94), rgba(9, 18, 50, 0.78));
-  box-shadow:
-    inset 0 0 28px rgba(16, 46, 111, 0.5),
-    0 0 18px rgba(45, 121, 255, 0.08);
   overflow: hidden;
+  border: 1px solid rgba(95, 173, 255, 0.2);
+  clip-path: polygon(
+    0 18px,
+    18px 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
+  background:
+    linear-gradient(180deg, rgba(9, 20, 39, 0.92), rgba(6, 17, 33, 0.78)),
+    linear-gradient(135deg, rgba(74, 223, 255, 0.04), transparent 32%);
+  box-shadow:
+    inset 0 0 32px rgba(12, 38, 83, 0.42),
+    0 0 24px rgba(29, 108, 204, 0.08);
+  backdrop-filter: blur(18px);
 }
 
 .panel::before,
@@ -299,25 +450,23 @@
 .logPanel::after {
   content: '';
   position: absolute;
-  width: 1rem;
-  height: 1rem;
-  border-color: #72e9ff;
-  border-style: solid;
   pointer-events: none;
 }
 
 .panel::before,
 .logPanel::before {
-  left: 0;
-  top: 0;
-  border-width: 2px 0 0 2px;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(123, 219, 255, 0.14), transparent 18% 82%, rgba(123, 219, 255, 0.1)),
+    linear-gradient(180deg, rgba(123, 219, 255, 0.07), transparent 18%);
+  opacity: 0.5;
 }
 
 .panel::after,
 .logPanel::after {
-  right: 0;
-  bottom: 0;
-  border-width: 0 2px 2px 0;
+  inset: 1px;
+  border: 1px solid rgba(123, 219, 255, 0.06);
+  clip-path: inherit;
 }
 
 .dualPanel,
@@ -326,6 +475,8 @@
 }
 
 .panelHead {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -334,21 +485,34 @@
 }
 
 .panelTitle {
-  color: #f0f8ff;
+  color: #f0fbff;
   font-size: var(--panel-title-font);
   font-weight: 800;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
 }
 
 .panelBody {
+  position: relative;
+  z-index: 1;
   flex: 1;
-  min-height: 0;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
 .chartBody {
   position: relative;
+}
+
+.chartBody::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(79, 231, 255, 0.08), transparent 40%),
+    linear-gradient(180deg, rgba(123, 219, 255, 0.04), transparent 32%);
+  pointer-events: none;
 }
 
 .chart {
@@ -359,10 +523,10 @@
 
 .radarHalo {
   position: absolute;
-  inset: 12% 18%;
+  inset: 10% 18%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(87, 246, 255, 0.18), transparent 62%);
-  filter: blur(16px);
+  background: radial-gradient(circle, rgba(87, 246, 255, 0.22), transparent 62%);
+  filter: blur(18px);
 }
 
 .list,
@@ -374,8 +538,8 @@
 }
 
 .list,
-.logList,
-.rankList {
+.rankList,
+.logList {
   display: grid;
   gap: clamp(8px, 0.65vw, 14px);
 }
@@ -384,18 +548,23 @@
 .activityItem,
 .rankItem,
 .logItem,
-.statCard {
+.kpiCard,
+.telemetryCard {
   position: relative;
   min-width: 0;
-  border: 1px solid rgba(76, 128, 221, 0.2);
-  background: rgba(10, 20, 53, 0.64);
+  border: 1px solid rgba(111, 192, 255, 0.14);
+  background: linear-gradient(180deg, rgba(10, 21, 42, 0.9), rgba(8, 18, 33, 0.72));
+  transition:
+    border-color 220ms ease-out,
+    box-shadow 220ms ease-out,
+    background-color 220ms ease-out;
 }
 
 .noticeItem,
 .activityItem,
 .logItem {
-  padding: clamp(10px, 0.9vw, 16px);
-  padding-left: clamp(14px, 1vw, 18px);
+  padding: clamp(11px, 0.88vw, 16px);
+  padding-left: clamp(16px, 1.05vw, 22px);
 }
 
 .noticeItem::before,
@@ -403,32 +572,32 @@
 .logItem::before {
   content: '';
   position: absolute;
-  left: 0.35rem;
-  top: 0.7rem;
-  bottom: 0.7rem;
+  left: 0.38rem;
+  top: 0.72rem;
+  bottom: 0.72rem;
   width: 0.18rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #77eaff, #2d8fff);
+  background: linear-gradient(180deg, #73f0ff, #4875ff);
+  box-shadow: 0 0 14px rgba(115, 240, 255, 0.28);
 }
 
 .noticeItem[data-tone='success']::before,
 .activityItem[data-tone='success']::before,
 .logItem[data-tone='success']::before {
-  background: linear-gradient(180deg, #ffe38b, #7cf2ff);
+  background: linear-gradient(180deg, #ffe079, #73f0ff);
 }
 
 .noticeItem[data-tone='warning']::before,
 .activityItem[data-tone='warning']::before,
 .logItem[data-tone='warning']::before {
-  background: linear-gradient(180deg, #ffb17a, #ff6f8b);
+  background: linear-gradient(180deg, #ffb46c, #ff7b95);
 }
 
 .noticeHead,
 .activityHead,
 .logHead,
 .rankLine,
-.progressHeader,
-.statFooter {
+.progressHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -438,10 +607,10 @@
 .itemTitle,
 .rankName,
 .progressName {
-  color: #edf6ff;
-  font-weight: 700;
-  font-size: var(--body-font);
   min-width: 0;
+  color: #edf9ff;
+  font-size: var(--body-font);
+  font-weight: 700;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
@@ -451,7 +620,7 @@
 .itemDetail {
   display: -webkit-box;
   overflow: hidden;
-  color: #c5ddf7;
+  color: #c3def3;
   font-size: var(--small-font);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -463,103 +632,244 @@
 }
 
 .emptyPanel {
-  height: 100%;
   display: grid;
+  height: 100%;
   place-items: center;
-  color: #6f8db8;
+  color: #6c90ac;
   font-size: var(--body-font);
 }
 
-.statCards {
+.kpiGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--screen-gap);
 }
 
-.statCard {
-  padding: clamp(12px, 1vw, 18px);
-  clip-path: polygon(0 0, calc(100% - 1.1rem) 0, 100% 50%, calc(100% - 1.1rem) 100%, 0 100%, 0 0);
+.commandHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(11rem, 0.9fr);
+  gap: clamp(10px, 0.8vw, 16px);
+  margin-bottom: clamp(10px, 0.82vw, 16px);
 }
 
-.statValue {
-  color: #f1f6ff;
-  font-size: clamp(30px, 2.1vw, 56px);
-  font-style: italic;
-  text-align: right;
+.commandHeroMain,
+.heroSignalCard,
+.signalChip,
+.chartFooter {
+  position: relative;
+  border: 1px solid rgba(111, 192, 255, 0.16);
+  background: linear-gradient(180deg, rgba(10, 21, 42, 0.92), rgba(8, 18, 33, 0.76));
+}
+
+.commandHeroMain {
+  padding: clamp(14px, 1vw, 20px);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+.commandHeroLabel,
+.commandHeroDetail,
+.commandHeroMeta,
+.signalChip span,
+.heroSignalCard span,
+.heroSignalCard small,
+.chartFooter span {
+  color: #7baecc;
+}
+
+.commandHeroLabel {
+  font-size: var(--meta-font);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+.commandHeroTitle {
+  margin-top: 0.35rem;
+  color: #f4fbff;
+  font-size: clamp(24px, 1.6vw, 40px);
   line-height: 1.05;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
 }
 
-.statFooter {
-  margin-top: auto;
-  padding-top: clamp(10px, 0.75vw, 16px);
-  gap: clamp(10px, 0.75vw, 16px);
+.commandHeroDetail {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: var(--small-font);
 }
 
-.statFooterItem {
+.commandHeroTrack {
+  height: 0.7rem;
+  margin-top: 0.85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.commandHeroFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2f7bff, #47dfff 60%, #7effb2);
+  box-shadow: 0 0 16px rgba(115, 240, 255, 0.32);
+}
+
+.commandHeroMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.55rem;
+  font-size: var(--small-font);
+}
+
+.commandHeroSide {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 0.8vw, 16px);
+}
+
+.heroSignalCard,
+.signalChip {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
+  gap: 0.2rem;
+  padding: clamp(12px, 0.88vw, 16px);
 }
 
-.statFooterItem strong,
-.progressPercent,
-.rankScore {
-  color: #7cf2ff;
+.heroSignalCard strong,
+.signalChip strong,
+.chartFooter strong {
+  color: #effbff;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: clamp(16px, 1vw, 22px);
   font-weight: 800;
 }
 
-.statFooterItem strong {
-  font-size: clamp(16px, 1vw, 24px);
+.kpiCard {
+  padding: clamp(13px, 0.95vw, 18px);
+  clip-path: polygon(0 0, calc(100% - 1rem) 0, 100% 1rem, 100% 100%, 0 100%);
+}
+
+.kpiCard[data-accent='true'] {
+  border-color: rgba(115, 240, 255, 0.2);
+  box-shadow:
+    inset 0 0 22px rgba(24, 89, 132, 0.34),
+    0 0 20px rgba(31, 143, 255, 0.08);
+}
+
+.kpiLabel {
+  display: block;
+  margin-bottom: 0.45rem;
+}
+
+.kpiValue {
+  color: #f2fbff;
+  font-size: clamp(28px, 1.95vw, 52px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.kpiDetail {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: var(--small-font);
+}
+
+.telemetryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 0.72vw, 16px);
+  margin-top: auto;
+  padding-top: clamp(10px, 0.8vw, 16px);
+}
+
+.telemetryCard {
+  padding: clamp(10px, 0.82vw, 15px);
+}
+
+.signalStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 0.72vw, 16px);
+  margin-bottom: clamp(10px, 0.8vw, 16px);
+}
+
+.telemetryCard span,
+.telemetryCard small {
+  display: block;
+}
+
+.telemetryCard strong {
+  display: block;
+  margin: 0.35rem 0 0.2rem;
+  color: #f2fbff;
+  font-size: clamp(15px, 0.95vw, 22px);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rankItem {
   display: grid;
-  grid-template-columns: clamp(32px, 2.4vw, 46px) minmax(0, 1fr);
-  gap: clamp(8px, 0.7vw, 12px);
-  padding: clamp(10px, 0.85vw, 16px);
+  grid-template-columns: clamp(48px, 3.2vw, 68px) minmax(0, 1fr);
+  gap: clamp(10px, 0.76vw, 14px);
+  padding: clamp(11px, 0.88vw, 16px);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
 }
 
 .rankItem[data-top='true'] {
-  border-color: rgba(121, 210, 255, 0.35);
-  box-shadow: inset 0 0 18px rgba(34, 87, 177, 0.35);
+  border-color: rgba(121, 225, 255, 0.3);
+  background:
+    linear-gradient(180deg, rgba(11, 26, 52, 0.96), rgba(8, 18, 39, 0.8)),
+    linear-gradient(90deg, rgba(115, 240, 255, 0.06), transparent 50%);
+  box-shadow:
+    inset 0 0 20px rgba(35, 89, 170, 0.28),
+    0 0 20px rgba(58, 196, 255, 0.08);
 }
 
 .rankIndex {
-  display: grid;
-  place-items: center;
-  color: #cbe8ff;
-  font-size: clamp(18px, 1.3vw, 28px);
-  font-style: italic;
-  border-right: 1px solid rgba(94, 142, 218, 0.18);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding-right: clamp(8px, 0.65vw, 12px);
+  border-right: 1px solid rgba(102, 168, 219, 0.18);
+}
+
+.rankIndex strong {
+  color: #dff8ff;
+  font-size: clamp(20px, 1.45vw, 30px);
+  font-weight: 800;
+  line-height: 1;
 }
 
 .rankBody {
   display: flex;
   flex-direction: column;
-  gap: clamp(5px, 0.45vw, 8px);
+  gap: clamp(6px, 0.42vw, 8px);
   min-width: 0;
 }
 
 .rankBarTrack,
 .progressTrack {
   height: clamp(6px, 0.45vw, 9px);
-  border-radius: 999px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .rankBarFill,
 .progressFill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #7cf2ff, #518cff);
-  box-shadow: 0 0 14px rgba(101, 211, 255, 0.35);
+  background: linear-gradient(90deg, #73f0ff, #6392ff 68%, #a286ff);
+  box-shadow: 0 0 16px rgba(115, 240, 255, 0.32);
 }
 
 .rankScore {
   flex-shrink: 0;
-  font-size: clamp(15px, 0.95vw, 22px);
+  color: #84f1ff;
+  font-size: clamp(16px, 0.98vw, 22px);
+  font-weight: 800;
 }
 
 .rankMeta,
@@ -571,7 +881,7 @@
 }
 
 .deltaBadge {
-  padding-inline: 0.4rem;
+  padding-inline: 0.45rem;
 }
 
 .scoreDelta {
@@ -593,25 +903,52 @@
   bottom: 0;
   width: 0.18rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #77eaff, #2d8fff);
+  background: linear-gradient(180deg, #77eaff, #4984ff);
 }
 
-.progressHeader {
-  margin-bottom: clamp(4px, 0.3vw, 7px);
+.progressBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #7baecc;
+  font-size: var(--small-font);
 }
 
 .progressPercent {
-  flex-shrink: 0;
+  color: #84f1ff;
   font-size: clamp(15px, 0.95vw, 21px);
+  font-weight: 800;
 }
 
 .logList {
   height: 100%;
 }
 
+.chartFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: clamp(10px, 0.78vw, 14px);
+  padding: 0.7rem 0.9rem;
+  font-size: var(--small-font);
+}
+
+.noticeItem:hover,
+.activityItem:hover,
+.rankItem:hover,
+.logItem:hover,
+.kpiCard:hover,
+.telemetryCard:hover {
+  border-color: rgba(126, 234, 255, 0.3);
+  box-shadow:
+    inset 0 0 20px rgba(28, 99, 158, 0.22),
+    0 0 20px rgba(28, 143, 204, 0.08);
+}
+
 @media (max-width: 1600px) {
   .header {
-    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr) minmax(0, 18rem);
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr) minmax(0, 19rem);
   }
 
   .mainBoard {
@@ -638,6 +975,10 @@
     justify-content: flex-start;
   }
 
+  .timeBadge {
+    min-width: 0;
+  }
+
   .mainBoard,
   .dualBoard {
     grid-template-columns: 1fr;
@@ -653,5 +994,41 @@
       'radar'
       'trend'
       'activity';
+  }
+}
+
+@media (max-width: 900px) {
+  .commandHero,
+  .kpiGrid,
+  .telemetryGrid,
+  .signalStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .commandHeroSide {
+    grid-template-rows: unset;
+  }
+
+  .timeBadge {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .commandHeroMeta,
+  .rankMeta,
+  .progressMeta {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .noticeItem,
+  .activityItem,
+  .rankItem,
+  .logItem,
+  .kpiCard,
+  .telemetryCard {
+    transition: none;
   }
 }

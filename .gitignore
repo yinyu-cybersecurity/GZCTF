@@ -255,6 +255,7 @@ _Pvt_Extensions
 **/log/**
 **/files/**
 **/uploads/**
+docker-data/
 **/.DS_Store
 
 # Node package lock files (npm)
