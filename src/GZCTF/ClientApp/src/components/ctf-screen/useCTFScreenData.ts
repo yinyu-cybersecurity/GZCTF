@@ -277,7 +277,7 @@ export const useCTFScreenData = (numId: number) => {
       }))
   }, [scoreboard?.items, prevRankMap, now])
 
-  // Score history for chart
+  // Score history for chart - with forward-fill to show cumulative scores
   const scoreHistory: ScoreData[] = useMemo(() => {
     const timelines = scoreboard?.timelines?.find(t => !t.divisionId || t.divisionId === 0)?.teams
       ?? scoreboard?.timelines?.[0]?.teams
@@ -287,7 +287,7 @@ export const useCTFScreenData = (numId: number) => {
 
     const top5 = timelines.slice(0, 5)
 
-    // Find all unique timestamps across all teams
+    // Collect all unique timestamps
     const allTimestamps = new Set<number>()
     top5.forEach(team => {
       team.items.forEach(item => allTimestamps.add(item.time))
@@ -295,14 +295,31 @@ export const useCTFScreenData = (numId: number) => {
 
     const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b)
 
+    // Build a map of each team's score history for efficient lookup
+    const teamScoreMap = new Map<string, Array<{ time: number; score: number }>>()
+    top5.forEach(team => {
+      teamScoreMap.set(team.name, team.items.sort((a, b) => a.time - b.time))
+    })
+
+    // Generate chart data with forward-fill: each team carries forward their last known score
     return sortedTimestamps.map(timestamp => {
       const point: ScoreData = {
         time: new Date(timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
       }
+
       top5.forEach(team => {
-        const item = team.items.find(i => i.time === timestamp)
-        point[team.name] = item?.score ?? 0
+        // Find the most recent score at or before this timestamp (forward-fill)
+        const history = teamScoreMap.get(team.name) ?? []
+        const relevantItem = history.reduce<{ time: number; score: number } | null>((prev, current) => {
+          if (current.time <= timestamp) {
+            return !prev || current.time > prev.time ? current : prev
+          }
+          return prev
+        }, null)
+
+        point[team.name] = relevantItem?.score ?? 0
       })
+
       return point
     })
   }, [scoreboard?.timelines])

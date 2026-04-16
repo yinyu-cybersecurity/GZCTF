@@ -77,9 +77,10 @@ export function RecentSolves({ events }: RecentSolvesProps) {
           return (
             <div
               key={event.id}
-              className={`px-3 py-2.5 relative ${isNew ? "feed-item-new" : ""}`}
+              className={`px-3 py-3.5 relative ${isNew ? "feed-item-new" : ""}`}
               style={{
                 borderBottom: "1px solid rgba(255,107,53,0.08)",
+                marginBottom: "4px",
                 background: isNew
                   ? "linear-gradient(90deg, rgba(255,107,53,0.08) 0%, transparent 70%)"
                   : event.isFirst

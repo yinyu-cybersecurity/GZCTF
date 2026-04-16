@@ -37,7 +37,7 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
 
       <div className="flex flex-1 min-h-0">
         {/* Left: category progress bars */}
-        <div className="flex flex-col justify-center gap-2 p-4 flex-1 min-w-0">
+        <div className="flex flex-col justify-center gap-3 p-4 flex-1 min-w-0">
           {categories.map((cat) => {
             const pct = Math.round((cat.solved / cat.total) * 100);
             return (

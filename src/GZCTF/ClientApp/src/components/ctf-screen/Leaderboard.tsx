@@ -99,7 +99,7 @@ export function Leaderboard({ teams }: LeaderboardProps) {
         {teams.map((team, idx) => (
           <div
             key={team.id}
-            className="grid items-center px-4 py-2 relative transition-all duration-500"
+            className="grid items-center px-4 py-3 relative transition-all duration-500"
             style={{
               gridTemplateColumns: "36px 20px 1fr 70px 40px",
               background: flashIds.has(team.id)

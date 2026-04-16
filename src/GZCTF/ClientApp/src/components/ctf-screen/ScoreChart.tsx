@@ -40,7 +40,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function ScoreChart({ data, teams }: ScoreChartProps) {
   return (
     <div className="flex flex-col h-full panel-border"
-      style={{ background: "linear-gradient(135deg, rgba(0,15,30,0.95) 0%, rgba(4,8,16,0.98) 100%)" }}>
+      style={{
+        background: "linear-gradient(135deg, rgba(0,15,30,0.95) 0%, rgba(4,8,16,0.98) 100%)",
+        boxShadow: "inset 0 0 20px rgba(0,212,255,0.05)"
+      }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: "1px solid rgba(0,212,255,0.15)" }}>
@@ -96,7 +99,7 @@ export function ScoreChart({ data, teams }: ScoreChartProps) {
                 strokeWidth={i === 0 ? 2.5 : 1.5}
                 dot={false}
                 activeDot={{ r: 4, fill: team.color, stroke: "#000", strokeWidth: 1 }}
-                style={{ filter: `drop-shadow(0 0 3px ${team.color}80)` }}
+                style={{ filter: `drop-shadow(0 0 6px ${team.color}90) drop-shadow(0 0 3px ${team.color}60)` }}
               />
             ))}
           </LineChart>
