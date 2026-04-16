@@ -260,3 +260,9 @@ docker-data/
 
 # Node package lock files (npm)
 **/package-lock.json
+
+# Local development files
+.codex/
+design-system/
+Dockerfile.local
+docker-compose.local.yml
