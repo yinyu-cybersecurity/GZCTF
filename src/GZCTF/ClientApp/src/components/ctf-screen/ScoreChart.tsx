@@ -42,7 +42,8 @@ export function ScoreChart({ data, teams }: ScoreChartProps) {
     <div className="flex flex-col h-full panel-border"
       style={{
         background: "linear-gradient(135deg, rgba(0,15,30,0.95) 0%, rgba(4,8,16,0.98) 100%)",
-        boxShadow: "inset 0 0 20px rgba(0,212,255,0.05)"
+        boxShadow: "inset 0 0 20px rgba(0,212,255,0.05)",
+        animation: "neon-chart-glow 4s ease-in-out infinite"
       }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3"

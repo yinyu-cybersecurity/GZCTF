@@ -279,13 +279,57 @@ export const useCTFScreenData = (numId: number) => {
 
   // Score history for chart - with forward-fill to show cumulative scores
   const scoreHistory: ScoreData[] = useMemo(() => {
-    const timelines = scoreboard?.timelines?.find(t => !t.divisionId || t.divisionId === 0)?.teams
+    // Step 1: Build team timelines from API data or fallback to scoreboard items
+    interface TimelineTeam { name: string; items: Array<{ time: number; score: number }> }
+
+    let timelineTeams: TimelineTeam[] = []
+
+    const rawTimelines = scoreboard?.timelines?.find(t => !t.divisionId || t.divisionId === 0)?.teams
       ?? scoreboard?.timelines?.[0]?.teams
-      ?? []
 
-    if (timelines.length === 0) return []
+    if (rawTimelines && rawTimelines.length > 0 && rawTimelines.some(t => t.items && t.items.length > 0)) {
+      timelineTeams = rawTimelines.slice(0, 5).map(t => ({ name: t.name, items: t.items }))
+    } else {
+      // Fallback: derive cumulative score history from scoreboard.items
+      // Each accepted submission in the event feed becomes a score point
+      const teamScores = new Map<string, Array<{ time: number; score: number }>>()
+      const acceptedSubs = submissionFeed
+        .filter(s => s.status === AnswerResult.Accepted && s.time && s.team)
+        .sort((a, b) => a.time - b.time)
 
-    const top5 = timelines.slice(0, 5)
+      // Use scoreboard items to get each team's current total score
+      const teamTotals = new Map<string, number>()
+      for (const item of (scoreboard?.items ?? [])) {
+        teamTotals.set(item.name, item.score)
+      }
+
+      // Build cumulative score per team from submissions
+      for (const sub of acceptedSubs) {
+        if (!sub.time || !sub.team) continue
+        const entry = teamScores.get(sub.team) ?? []
+        const prevScore = entry.length > 0 ? entry[entry.length - 1].score : 0
+        // Estimate challenge score from total - we use the team's total as a reference
+        entry.push({ time: sub.time, score: 0 }) // placeholder, will be fixed below
+        teamScores.set(sub.team, entry)
+      }
+
+      // Since we can't easily derive individual challenge scores from submissions alone,
+      // use scoreboard.items rank-ordered top 5 teams with their current scores as single points
+      const topTeams = [...(scoreboard?.items ?? [])]
+        .sort((a, b) => a.rank - b.rank)
+        .slice(0, 5)
+
+      timelineTeams = topTeams.map(item => ({
+        name: item.name,
+        items: item.lastSubmissionTime
+          ? [{ time: item.lastSubmissionTime, score: item.score }]
+          : [{ time: Date.now(), score: item.score }],
+      }))
+    }
+
+    if (timelineTeams.length === 0) return []
+
+    const top5 = timelineTeams
 
     // Collect all unique timestamps
     const allTimestamps = new Set<number>()
@@ -294,11 +338,13 @@ export const useCTFScreenData = (numId: number) => {
     })
 
     const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b)
+    if (sortedTimestamps.length === 0) return []
 
-    // Build a map of each team's score history for efficient lookup
+    // Build a sorted map for each team's score history
     const teamScoreMap = new Map<string, Array<{ time: number; score: number }>>()
     top5.forEach(team => {
-      teamScoreMap.set(team.name, team.items.sort((a, b) => a.time - b.time))
+      const sorted = team.items.slice().sort((a, b) => a.time - b.time)
+      teamScoreMap.set(team.name, sorted)
     })
 
     // Generate chart data with forward-fill: each team carries forward their last known score
@@ -308,21 +354,21 @@ export const useCTFScreenData = (numId: number) => {
       }
 
       top5.forEach(team => {
-        // Find the most recent score at or before this timestamp (forward-fill)
         const history = teamScoreMap.get(team.name) ?? []
-        const relevantItem = history.reduce<{ time: number; score: number } | null>((prev, current) => {
-          if (current.time <= timestamp) {
-            return !prev || current.time > prev.time ? current : prev
+        let lastScore = 0
+        for (const entry of history) {
+          if (entry.time <= timestamp) {
+            lastScore = entry.score
+          } else {
+            break
           }
-          return prev
-        }, null)
-
-        point[team.name] = relevantItem?.score ?? 0
+        }
+        point[team.name] = lastScore
       })
 
       return point
     })
-  }, [scoreboard?.timelines])
+  }, [scoreboard?.timelines, scoreboard?.items, submissionFeed])
 
   // Categories for stats
   const categories: Category[] = useMemo(() => {

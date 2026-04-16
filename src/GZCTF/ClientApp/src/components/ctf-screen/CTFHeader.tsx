@@ -86,7 +86,9 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
             style={{
               border: `1px solid ${color}40`,
               background: `linear-gradient(135deg, ${color}08, transparent)`,
-              boxShadow: `0 0 10px ${color}20`
+              boxShadow: `0 0 8px ${color}30, 0 0 16px ${color}15`,
+              animation: "neon-shadow-pulse 3s ease-in-out infinite",
+              ['--neon-color' as string]: `${color}55`,
             }}>
             <div className="flex items-center gap-1.5">
               <Icon size={14} style={{ color }} />
