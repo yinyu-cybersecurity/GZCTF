@@ -294,7 +294,7 @@ export const useCTFScreenData = (numId: number) => {
       // Each accepted submission in the event feed becomes a score point
       const teamScores = new Map<string, Array<{ time: number; score: number }>>()
       const acceptedSubs = submissionFeed
-        .filter(s => s.status === AnswerResult.Accepted && s.time && s.team)
+        .filter((s): s is typeof s & { time: number } => s.status === AnswerResult.Accepted && !!s.time && !!s.team)
         .sort((a, b) => a.time - b.time)
 
       // Use scoreboard items to get each team's current total score
