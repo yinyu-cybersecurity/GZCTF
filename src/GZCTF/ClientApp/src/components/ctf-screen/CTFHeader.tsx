@@ -78,11 +78,11 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
       {/* Center: Stats */}
       <div className="flex items-center gap-8">
         {[
-          { icon: Users, label: "参赛队伍", value: totalTeams, color: "#00d4ff" },
-          { icon: Flag, label: "解题次数", value: totalSolves, color: "#00ff88" },
-          { icon: Activity, label: "题目总数", value: totalChallenges, color: "#b347ff" },
+          { icon: Users, label: "队伍", value: totalTeams, color: "#00d4ff" },
+          { icon: Flag, label: "解题", value: totalSolves, color: "#00ff88" },
+          { icon: Activity, label: "题数", value: totalChallenges, color: "#b347ff" },
         ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="flex flex-col items-center gap-0.5 px-5 py-1.5 relative"
+          <div key={label} className="flex flex-col items-center justify-center gap-0.5 px-5 py-1.5 relative text-center"
             style={{
               border: `1px solid ${color}40`,
               background: `linear-gradient(135deg, ${color}08, transparent)`,
@@ -90,7 +90,7 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
               animation: "neon-shadow-pulse 3s ease-in-out infinite",
               ['--neon-color' as string]: `${color}55`,
             }}>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-center gap-1.5 w-full">
               <Icon size={14} style={{ color }} />
               <span className="text-xs tracking-wider" style={{ color: `${color}99`, fontFamily: "'Courier New', monospace" }}>{label}</span>
             </div>

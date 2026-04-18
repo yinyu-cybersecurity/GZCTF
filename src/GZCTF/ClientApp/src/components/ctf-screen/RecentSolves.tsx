@@ -104,7 +104,7 @@ export function RecentSolves({ events }: RecentSolvesProps) {
                 </div>
               )}
 
-              <div className="flex items-start gap-2.5">
+              <div className="flex items-start gap-4">
                 {/* Category icon */}
                 <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded"
                   style={{

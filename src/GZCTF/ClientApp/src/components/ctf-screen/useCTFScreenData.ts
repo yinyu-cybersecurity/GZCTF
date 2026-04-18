@@ -46,6 +46,7 @@ export interface HeatmapData {
 }
 
 export interface ScoreData {
+  ts: number
   time: string
   [teamName: string]: number | string
 }
@@ -350,6 +351,7 @@ export const useCTFScreenData = (numId: number) => {
     // Generate chart data with forward-fill: each team carries forward their last known score
     return sortedTimestamps.map(timestamp => {
       const point: ScoreData = {
+        ts: timestamp,
         time: new Date(timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
       }
 

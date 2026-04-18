@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { CTFHeader } from "./CTFHeader";
 import { Leaderboard } from "./Leaderboard";
 import { ScoreChart } from "./ScoreChart";
@@ -67,6 +67,19 @@ interface CTFScreenPageProps {
 
 const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
   const data = useCTFScreenData(gameId);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const currentTimeText = currentTime.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
 
   return (
     <div className="ctf-screen scanline-overlay relative w-screen h-screen overflow-hidden flex flex-col"
@@ -136,8 +149,7 @@ const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
         <div className="flex items-center gap-6">
           {[
             { label: "系统状态", value: "NORMAL", color: "#00ff88" },
-            { label: "网络延迟", value: "12ms", color: "#00d4ff" },
-            { label: "在线裁判", value: "3/3", color: "#00ff88" },
+            { label: "当前时间", value: currentTimeText, color: "#00d4ff" },
           ].map(({ label, value, color }) => (
             <div key={label} className="flex items-center gap-1.5 text-xs">
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />

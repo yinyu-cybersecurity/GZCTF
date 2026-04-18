@@ -143,14 +143,15 @@ export function Leaderboard({ teams }: LeaderboardProps) {
 
             {/* Team name */}
             <div className="relative z-10 min-w-0">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: team.color, boxShadow: `0 0 6px ${team.color}` }} />
+                  style={{ background: team.color, boxShadow: `0 0 6px ${team.color}`, marginLeft: "-2px" }} />
                 <span className="text-sm font-medium truncate"
                   style={{
                     color: team.rank <= 3 ? "#fff" : "rgba(255,255,255,0.85)",
                     fontFamily: "'Courier New', monospace",
-                    textShadow: team.rank === 1 ? "0 0 10px rgba(255,215,0,0.3)" : "none"
+                    textShadow: team.rank === 1 ? "0 0 10px rgba(255,215,0,0.3)" : "none",
+                    marginLeft: "2px"
                   }}>
                   {team.name}
                 </span>
