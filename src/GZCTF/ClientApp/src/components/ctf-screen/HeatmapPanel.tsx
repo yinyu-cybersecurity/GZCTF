@@ -50,11 +50,11 @@ export function HeatmapPanel({ data, totalBlood, avgScore, activeTeams }: Heatma
             解题热度
           </span>
         </div>
-        <div className="flex items-center gap-5 text-xs" style={{ fontFamily: "'Courier New', monospace" }}>
+        <div className="flex items-center gap-7 text-xs" style={{ fontFamily: "'Courier New', monospace" }}>
           {[
             { label: "首血", value: totalBlood, color: "#ffd700" },
             { label: "场均分", value: avgScore.toLocaleString(), color: "#00d4ff" },
-            { label: "活跃队", value: activeTeams, color: "#00ff88" },
+            { label: "活动队", value: activeTeams, color: "#00ff88" },
           ].map(({ label, value, color }) => (
             <div key={label} className="flex flex-col items-center">
               <span style={{ color: `${color}99`, fontSize: "9px", letterSpacing: "0.1em" }}>{label}</span>

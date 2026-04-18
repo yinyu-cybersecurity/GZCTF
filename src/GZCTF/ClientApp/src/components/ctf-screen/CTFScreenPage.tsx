@@ -65,6 +65,8 @@ interface CTFScreenPageProps {
   gameId: number;
 }
 
+const SHANGHAI_TIMEZONE = "Asia/Shanghai";
+
 const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
   const data = useCTFScreenData(gameId);
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -79,6 +81,7 @@ const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: SHANGHAI_TIMEZONE,
   });
 
   return (
@@ -101,6 +104,7 @@ const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
         totalTeams={data.totalTeams}
         totalSolves={data.totalSolves}
         totalChallenges={data.totalChallenges}
+        startTime={data.startTime}
         endTime={data.endTime}
       />
 
@@ -160,10 +164,9 @@ const CTFScreenPage: FC<CTFScreenPageProps> = ({ gameId }) => {
         </div>
 
         <div className="flex items-center gap-1 text-xs" style={{ color: "rgba(0,212,255,0.3)", fontFamily: "'Courier New', monospace" }}>
-          <span>POWERED BY</span>
-          <span style={{ color: "#00d4ff" }}>GZCTF LIVE PLATFORM</span>
-          <span>·</span>
-          <span>v2.0</span>
+          <span>DEVELOPED BY</span>
+          <span>SCU</span>
+          <span style={{ color: "#00d4ff" }}>CYBERRANGE</span>
         </div>
 
         <div className="flex items-center gap-4 text-xs" style={{ fontFamily: "'Courier New', monospace" }}>

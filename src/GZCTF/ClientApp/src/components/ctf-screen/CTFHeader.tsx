@@ -6,36 +6,107 @@ interface HeaderProps {
   totalSolves: number;
   totalChallenges: number;
   eventName: string;
+  startTime: Date;
   endTime: Date;
 }
 
-export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName, endTime }: HeaderProps) {
+type CountdownState = "before" | "ongoing" | "ended";
+
+const SHANGHAI_TIMEZONE = "Asia/Shanghai";
+const COUNTDOWN_THEME: Record<
+  CountdownState,
+  { label: string; color: string; border: string; bg: string; dim: string; textShadow: string }
+> = {
+  before: {
+    label: "距离开始",
+    color: "#00ff88",
+    border: "rgba(0,255,136,0.35)",
+    bg: "rgba(0,255,136,0.12)",
+    dim: "rgba(0,255,136,0.22)",
+    textShadow: "0 0 10px #00ff88",
+  },
+  ongoing: {
+    label: "剩余时间",
+    color: "#ff6b35",
+    border: "rgba(255,107,53,0.3)",
+    bg: "rgba(255,107,53,0.1)",
+    dim: "rgba(255,107,53,0.2)",
+    textShadow: "0 0 10px #ff6b35",
+  },
+  ended: {
+    label: "已结束",
+    color: "#ffffff",
+    border: "rgba(255,255,255,0.35)",
+    bg: "rgba(255,255,255,0.08)",
+    dim: "rgba(255,255,255,0.28)",
+    textShadow: "0 0 8px rgba(255,255,255,0.55)",
+  },
+};
+
+export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName, startTime, endTime }: HeaderProps) {
   const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
+  const [countdownState, setCountdownState] = useState<CountdownState>("ongoing");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [tick, setTick] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateClock = () => {
       const now = new Date();
       setCurrentTime(now);
-      const diff = endTime.getTime() - now.getTime();
-      if (diff > 0) {
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        setTimeLeft({ h, m, s });
+
+      const nowMs = now.getTime();
+      const startMs = startTime.getTime();
+      const endMs = endTime.getTime();
+
+      let nextState: CountdownState;
+      let diff = 0;
+
+      if (nowMs < startMs) {
+        nextState = "before";
+        diff = startMs - nowMs;
+      } else if (nowMs < endMs) {
+        nextState = "ongoing";
+        diff = endMs - nowMs;
       } else {
-        setTimeLeft({ h: 0, m: 0, s: 0 });
+        nextState = "ended";
       }
+
+      setCountdownState(nextState);
+
+      if (nextState === "ended") {
+        setTimeLeft({ h: 0, m: 0, s: 0 });
+      } else {
+        const totalSeconds = Math.max(0, Math.floor(diff / 1000));
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        setTimeLeft({ h, m, s });
+      }
+
       setTick(t => !t);
-    }, 1000);
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
-  }, [endTime]);
+  }, [startTime, endTime]);
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
-  const timeStr = currentTime.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-  const dateStr = currentTime.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+  const timeStr = currentTime.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: SHANGHAI_TIMEZONE,
+  });
+  const dateStr = currentTime.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: SHANGHAI_TIMEZONE,
+  });
+  const countdownTheme = COUNTDOWN_THEME[countdownState];
 
   return (
     <header className="relative flex items-center justify-between px-6 py-3 flicker"
@@ -122,9 +193,9 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
         {/* Countdown */}
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1 mb-1">
-            <Clock size={12} style={{ color: "rgba(255,107,53,0.8)" }} />
-            <span className="text-xs tracking-widest uppercase" style={{ color: "rgba(255,107,53,0.8)", fontFamily: "'Courier New', monospace" }}>
-              剩余时间
+            <Clock size={12} style={{ color: countdownTheme.color }} />
+            <span className="text-xs tracking-widest uppercase" style={{ color: countdownTheme.color, fontFamily: "'Courier New', monospace" }}>
+              {countdownTheme.label}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -132,20 +203,24 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
               <span key={i} className="flex items-center">
                 <span className="tabular-nums px-1.5 py-0.5"
                   style={{
-                    color: "#ff6b35",
+                    color: countdownTheme.color,
                     fontFamily: "'Courier New', monospace",
                     fontSize: "1.4rem",
                     fontWeight: 700,
-                    background: "rgba(255,107,53,0.1)",
-                    border: "1px solid rgba(255,107,53,0.3)",
-                    textShadow: "0 0 10px #ff6b35",
-                    boxShadow: "0 0 8px rgba(255,107,53,0.2)"
+                    background: countdownTheme.bg,
+                    border: `1px solid ${countdownTheme.border}`,
+                    textShadow: countdownTheme.textShadow,
+                    boxShadow: `0 0 8px ${countdownTheme.border}`
                   }}>
                   {pad(val)}
                 </span>
                 {i < 2 && (
                   <span className="mx-0.5 font-bold"
-                    style={{ color: tick ? "#ff6b35" : "rgba(255,107,53,0.2)", fontFamily: "'Courier New', monospace", fontSize: "1.2rem" }}>
+                    style={{
+                      color: countdownState === "ended" ? countdownTheme.color : tick ? countdownTheme.color : countdownTheme.dim,
+                      fontFamily: "'Courier New', monospace",
+                      fontSize: "1.2rem"
+                    }}>
                     :
                   </span>
                 )}

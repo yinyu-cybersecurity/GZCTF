@@ -56,6 +56,7 @@ export interface HeaderProps {
   totalSolves: number
   totalChallenges: number
   eventName: string
+  startTime: Date
   endTime: Date
 }
 
@@ -454,6 +455,10 @@ export const useCTFScreenData = (numId: number) => {
   )
   const totalChallenges = scoreboard?.challengeCount ?? 0
   const eventName = game?.title ?? 'CTF Competition'
+  const startTime = useMemo(() => {
+    if (!game?.start) return new Date(Date.now() - 3600000)
+    return new Date(game.start)
+  }, [game?.start])
   const endTime = useMemo(() => {
     if (!game?.end) return new Date(Date.now() + 3600000)
     return new Date(game.end)
@@ -495,6 +500,7 @@ export const useCTFScreenData = (numId: number) => {
     totalSolves,
     totalChallenges,
     eventName,
+    startTime,
     endTime,
     totalBlood,
     avgScore,
