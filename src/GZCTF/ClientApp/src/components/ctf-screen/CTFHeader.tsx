@@ -84,6 +84,7 @@ export function CTFHeader({ totalTeams, totalSolves, totalChallenges, eventName,
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="flex flex-col items-center justify-center gap-0.5 px-5 py-1.5 relative text-center"
             style={{
+              width: "108px",
               border: `1px solid ${color}40`,
               background: `linear-gradient(135deg, ${color}08, transparent)`,
               boxShadow: `0 0 8px ${color}30, 0 0 16px ${color}15`,
