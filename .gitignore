@@ -266,3 +266,11 @@ docker-data/
 design-system/
 Dockerfile.local
 docker-compose.local.yml
+
+# Spec-kit
+.specify/extensions/
+.specify/scripts/
+.specify/templates/
+.specify/workflows/
+.specify/integrations/
+.claude/skills/

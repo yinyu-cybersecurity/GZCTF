@@ -44,3 +44,8 @@ git push
 - SignalR hub at `/hub/monitor?game={gameId}` for real-time screen data
 - `useDemoScreenData` generates mock data when no real game data is available
 - Never modify Ctfscreen UI component styling — only adapt data interfaces to GZCTF backend
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
